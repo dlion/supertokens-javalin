@@ -1,11 +1,31 @@
-plugins {
-    id 'java'
+apply plugin: 'com.novoda.bintray-release' // must be applied after your artifact generating plugin (eg. java / com.android.library)
+
+apply plugin: 'java-library'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.9.2'
+    }
 }
 
-group 'io.supertokens'
-version '0.0.1'
+def publishVersionID = '0.0.1'
+def groupProjectID = 'io.supertokens'
+def artifactProjectID = 'javalin'
 
-sourceCompatibility = 1.8
+publish {
+
+    userOrg = 'supertokens'
+    repoName = 'SuperTokensJavalin'
+    groupId = groupProjectID
+    artifactId = artifactProjectID
+    publishVersion = publishVersionID
+    desc = 'Javalin SDK for SuperTokens'
+    website = 'https://github.com/supertokens/supertokens-javalin'
+
+}
 
 repositories {
     mavenCentral()
@@ -13,4 +33,79 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+
+/////////////////////
+
+//bintray {
+//    user = System.getProperty('bintray.user')
+//    key = System.getProperty('bintray.key')
+//    publications = ['mavenPublication']
+//
+//    pkg {
+//        repo = 'SuperTokensJavalin'
+//        name = 'io.supertokens'
+//        userOrg = 'supertokens'
+//        licenses = ['Apache-2.0']
+//        vcsUrl = 'https://github.com/supertokens/supertokens-javalin.git'
+//        version {
+//            name = publishVersionID
+//            desc = publishVersionID
+//            released  = new Date()
+//        }
+//    }
+//}
+//
+//publishing {
+//    publications {
+//        maven(MavenPublication) {
+//            groupId = 'io.supertokens'
+//            artifactId = 'javalin'
+//            version = publishVersionID
+//
+//            from components.java
+//        }
+//    }
+//}
+
+/////////////////////
+
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+tasks.withType(Test) {
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
+    }
 }
