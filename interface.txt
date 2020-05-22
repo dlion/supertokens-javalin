@@ -1,0 +1,45 @@
+import io.supertokens.javalin;
+
+Javalin app = Javalin.create().start(7000);
+
+app.post("/login", ctx -> {
+    String userId = "user1";
+    Map jwtPayload;
+    Map sessionData;
+    SuperTokens.createNewSession(ctx,
+        userId, jwtPayload, sessionData);
+});
+
+
+app.before("/user/info", SuperTokens.middleware());
+app.get("/user/info", ctx -> {
+    Session session = SuperTokens.getFromContext(ctx);
+    String userId = session.getUserId();
+    ctx.result(userId);
+});
+
+
+app.before("/refresh", SuperTokens.middleware());
+app.post("/refresh", ctx -> {
+    ctx.result("");
+});
+
+app.before("/logout", SuperTokens.middleware());
+app.post("/logout", ctx -> {
+    Session session = SuperTokens.getFromContext(ctx);
+    session.revokeSession();
+    ctx.result("");
+});
+
+app.exception(SuperTokens.Exception.class, SuperTokens.exceptionHandler());
+
+//////////////////
+
+SuperTokens.middleware(boolean) -> anticsrf true / false
+
+SuperTokens.config("localhost:3567;192.168.2.4:9000");
+
+SuperTokens.exceptionHandler()
+    .onUnauthorisedError((Exception e, Context ctx) -> {})
+    .onTryRefreshTokenError((Exception e, Context ctx) -> {})
+    .onTokenTheftDetectedError((String sessionHandle, String userId, Context ctx) -> {});
