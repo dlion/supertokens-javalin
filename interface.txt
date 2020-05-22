@@ -6,8 +6,8 @@ app.post("/login", ctx -> {
     String userId = "user1";
     Map jwtPayload;
     Map sessionData;
-    SuperTokens.createNewSession(ctx,
-        userId, jwtPayload, sessionData);
+    SuperTokens.newSession(ctx,
+        userId).withJWTPayload(jwtPayload).withSessionData(sessionData).create();
 });
 
 

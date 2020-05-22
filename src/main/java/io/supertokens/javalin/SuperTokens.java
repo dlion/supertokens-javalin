@@ -7,62 +7,66 @@ import org.jetbrains.annotations.Nullable;
 
 public class SuperTokens {
 
-    public Session createNewSession(@NotNull Context ctx, @NotNull  String userId,
+    public static SessionBuilder newSession(@NotNull Context ctx, @NotNull  String userId) {
+        return new SessionBuilder(ctx, userId);
+    }
+
+    static Session createNewSession(@NotNull Context ctx, @NotNull  String userId,
                                     @Nullable JsonObject jwtPayload,
                                     @Nullable JsonObject sessionData) {
         // TODO:
         return null;
     }
 
-    public Session getSession(@NotNull Context ctx, boolean doAntiCSRFCheck) {
+    public static Session getSession(@NotNull Context ctx, boolean doAntiCSRFCheck) {
         // TODO:
         return null;
     }
 
-    public Session refreshSession(@NotNull Context ctx) {
+    public static Session refreshSession(@NotNull Context ctx) {
         // TODO:
         return null;
     }
 
-    public String[] revokeAllSessionsForUser(@NotNull String userId) {
+    public static String[] revokeAllSessionsForUser(@NotNull String userId) {
         // TODO:
         return new String[]{};
     }
 
-    public String[] getAllSessionHandlesForUser(@NotNull String userId) {
+    public static String[] getAllSessionHandlesForUser(@NotNull String userId) {
         // TODO:
         return new String[]{};
     }
 
-    public boolean revokeSession(@NotNull String sessionHandle) {
+    public static boolean revokeSession(@NotNull String sessionHandle) {
         // TODO:
         return false;
     }
 
-    public String[] revokeMultipleSessions(@NotNull String[] sessionHandle) {
+    public static String[] revokeMultipleSessions(@NotNull String[] sessionHandle) {
         // TODO:
         return new String[]{};
     }
 
-    public JsonObject getSessionData(@NotNull String sessionHandle) {
+    public static JsonObject getSessionData(@NotNull String sessionHandle) {
         // TODO:
         return null;
     }
 
-    public void updateSessionData(@NotNull String sessionHandle, @NotNull JsonObject sessionData) {
+    public static void updateSessionData(@NotNull String sessionHandle, @NotNull JsonObject sessionData) {
         // TODO:
     }
 
-    public void setRelevantHeadersForOptionsAPI(@NotNull Context ctx) {
+    public static void setRelevantHeadersForOptionsAPI(@NotNull Context ctx) {
         // TODO:
     }
 
-    public JsonObject geJWTPayload(@NotNull String sessionHandle) {
+    public static JsonObject geJWTPayload(@NotNull String sessionHandle) {
         // TODO:
         return null;
     }
 
-    public void updateJWTPayload(@NotNull String sessionHandle, @NotNull JsonObject newJWTPayload) {
+    public static void updateJWTPayload(@NotNull String sessionHandle, @NotNull JsonObject newJWTPayload) {
         // TODO:
     }
 
