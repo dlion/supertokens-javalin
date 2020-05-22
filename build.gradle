@@ -32,44 +32,13 @@ repositories {
 }
 
 dependencies {
+
+    compileOnly 'io.javalin:javalin:+'
+
+    testCompile 'io.javalin:javalin:+'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-
-/////////////////////
-
-//bintray {
-//    user = System.getProperty('bintray.user')
-//    key = System.getProperty('bintray.key')
-//    publications = ['mavenPublication']
-//
-//    pkg {
-//        repo = 'SuperTokensJavalin'
-//        name = 'io.supertokens'
-//        userOrg = 'supertokens'
-//        licenses = ['Apache-2.0']
-//        vcsUrl = 'https://github.com/supertokens/supertokens-javalin.git'
-//        version {
-//            name = publishVersionID
-//            desc = publishVersionID
-//            released  = new Date()
-//        }
-//    }
-//}
-//
-//publishing {
-//    publications {
-//        maven(MavenPublication) {
-//            groupId = 'io.supertokens'
-//            artifactId = 'javalin'
-//            version = publishVersionID
-//
-//            from components.java
-//        }
-//    }
-//}
-
-/////////////////////
 
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
