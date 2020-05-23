@@ -1,9 +1,24 @@
 package io.supertokens.javalin;
 
 import com.google.gson.JsonObject;
+import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
 
 public class Session {
+
+    private final String accessToken;
+    private final String sessionHandle;
+    private final String userId;
+    private final JsonObject userDataInJWT;
+    private final Context ctx;
+
+    Session(String accessToken, String sessionHandle, String userId, JsonObject userDataInJWT, Context ctx) {
+        this.accessToken = accessToken;
+        this.sessionHandle = sessionHandle;
+        this.userId = userId;
+        this.userDataInJWT = userDataInJWT;
+        this.ctx = ctx;
+    }
 
     public void revokeSession() {
         // TODO:
@@ -28,7 +43,7 @@ public class Session {
         return null;
     }
 
-    public String getHandle() {
+    public String getSessionHandle() {
         // TODO:
         return null;
     }

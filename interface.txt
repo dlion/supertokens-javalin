@@ -4,8 +4,8 @@ Javalin app = Javalin.create().start(7000);
 
 app.post("/login", ctx -> {
     String userId = "user1";
-    Map jwtPayload;
-    Map sessionData;
+    JsonObject jwtPayload;
+    JsonObject sessionData;
     SuperTokens.newSession(ctx,
         userId).withJWTPayload(jwtPayload).withSessionData(sessionData).create();
 });

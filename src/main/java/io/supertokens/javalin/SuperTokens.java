@@ -2,8 +2,12 @@ package io.supertokens.javalin;
 
 import com.google.gson.JsonObject;
 import io.javalin.http.Context;
+import io.supertokens.javalin.core.InformationHolders.SessionTokens;
+import io.supertokens.javalin.core.SessionFunctions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.servlet.http.Cookie;
 
 public class SuperTokens {
 
@@ -14,8 +18,16 @@ public class SuperTokens {
     static Session createNewSession(@NotNull Context ctx, @NotNull  String userId,
                                     @Nullable JsonObject jwtPayload,
                                     @Nullable JsonObject sessionData) {
-        // TODO:
-        return null;
+        SessionTokens sessionTokens = SessionFunctions.createNewSession(userId, jwtPayload, sessionData);
+
+        CookieAndHeaders.attachAccessTokenToCookie(ctx, sessionTokens.accessToken);
+        CookieAndHeaders.attachRefreshTokenToCookie(ctx, sessionTokens.refreshToken);
+        CookieAndHeaders.setIdRefreshTokenInHeaderAndCookie(ctx, sessionTokens.idRefreshToken);
+        if (sessionTokens.antiCsrfToken != null) {
+            CookieAndHeaders.setAntiCsrfTokenInHeaders(ctx, sessionTokens.antiCsrfToken);
+        }
+        return new Session(sessionTokens.accessToken.token, sessionTokens.handle,
+                sessionTokens.userId, sessionTokens.userDataInJWT, ctx);
     }
 
     public static Session getSession(@NotNull Context ctx, boolean doAntiCSRFCheck) {

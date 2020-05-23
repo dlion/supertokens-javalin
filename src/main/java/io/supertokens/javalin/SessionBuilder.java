@@ -34,14 +34,6 @@ public class SessionBuilder {
         this.sessionData = sessionData;
     }
 
-    public void withJWTPayload(@NotNull Map<String, Object> jwtPayload) {
-        // TODO: a problem is what are we going to return to the user? Map or JsonObject?
-    }
-
-    public void withSessionData(@NotNull Map<String, Object> sessionData) {
-        // TODO: See above..
-    }
-
     public Session create() {
         return SuperTokens.createNewSession(this.ctx, this.userId, this.jwtPayload, this.sessionData);
     }
