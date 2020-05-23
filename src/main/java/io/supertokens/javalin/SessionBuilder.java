@@ -2,6 +2,7 @@ package io.supertokens.javalin;
 
 import com.google.gson.JsonObject;
 import io.javalin.http.Context;
+import io.supertokens.javalin.core.Exception.GeneralException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +35,7 @@ public class SessionBuilder {
         this.sessionData = sessionData;
     }
 
-    public Session create() {
+    public Session create() throws GeneralException {
         return SuperTokens.createNewSession(this.ctx, this.userId, this.jwtPayload, this.sessionData);
     }
 }

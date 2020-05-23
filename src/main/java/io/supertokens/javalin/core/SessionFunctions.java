@@ -14,19 +14,19 @@ import org.jetbrains.annotations.Nullable;
 public class SessionFunctions {
 
     public static SessionTokens createNewSession(@NotNull String userId, @Nullable JsonObject jwtPayload,
-                                                 @Nullable JsonObject sessionData) {
+                                                 @Nullable JsonObject sessionData) throws GeneralException {
         // TODO:
         return null;
     }
 
     public static SessionTokens getSession(String accessToken, String antiCsrfToken, boolean doAntiCsrfCheck, String idRefreshToken) throws
-            UnauthorisedException, TryRefreshTokenException {
+            UnauthorisedException, TryRefreshTokenException, GeneralException {
         // TODO:
         return null;
     }
 
     public static SessionTokens refreshSession(String refreshToken) throws UnauthorisedException,
-            TokenTheftDetectedException {
+            TokenTheftDetectedException, GeneralException {
         // TODO:
         return null;
     }

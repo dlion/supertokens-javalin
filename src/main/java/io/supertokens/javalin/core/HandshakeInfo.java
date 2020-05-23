@@ -1,6 +1,7 @@
 package io.supertokens.javalin.core;
 
 import com.google.gson.JsonObject;
+import io.supertokens.javalin.core.Exception.GeneralException;
 
 public class HandshakeInfo {
 
@@ -18,7 +19,7 @@ public class HandshakeInfo {
     public  String idRefreshTokenPath;
     public  int sessionExpiredStatusCode;
 
-    public static HandshakeInfo getInstance() {
+    public static HandshakeInfo getInstance() throws GeneralException {
         if (HandshakeInfo.instance == null) {
             JsonObject response = new JsonObject(); // TODO: send request
             HandshakeInfo.instance = new HandshakeInfo(

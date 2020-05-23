@@ -2,6 +2,7 @@ package io.supertokens.javalin;
 
 import com.google.gson.JsonObject;
 import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import io.supertokens.javalin.core.Exception.GeneralException;
 import io.supertokens.javalin.core.Exception.TokenTheftDetectedException;
 import io.supertokens.javalin.core.Exception.TryRefreshTokenException;
@@ -14,13 +15,15 @@ import org.jetbrains.annotations.Nullable;
 
 public class SuperTokens {
 
+    private static final String CONTEXT_ATTRIBUTE_KEY = "SUPERTOKENS_SESSION";
+
     public static SessionBuilder newSession(@NotNull Context ctx, @NotNull  String userId) {
         return new SessionBuilder(ctx, userId);
     }
 
     static Session createNewSession(@NotNull Context ctx, @NotNull  String userId,
                                     @Nullable JsonObject jwtPayload,
-                                    @Nullable JsonObject sessionData) {
+                                    @Nullable JsonObject sessionData) throws GeneralException {
         SessionTokens sessionTokens = SessionFunctions.createNewSession(userId, jwtPayload, sessionData);
 
         CookieAndHeaders.attachAccessTokenToCookie(ctx, sessionTokens.accessToken);
@@ -34,7 +37,7 @@ public class SuperTokens {
     }
 
     public static Session getSession(@NotNull Context ctx, boolean doAntiCSRFCheck)
-            throws TryRefreshTokenException, UnauthorisedException {
+            throws TryRefreshTokenException, UnauthorisedException, GeneralException {
         CookieAndHeaders.saveFrontendInfoFromRequest(ctx);
 
         String accessToken = CookieAndHeaders.getAccessTokenFromCookie(ctx);
@@ -64,7 +67,8 @@ public class SuperTokens {
         }
     }
 
-    public static Session refreshSession(@NotNull Context ctx) throws UnauthorisedException, TokenTheftDetectedException {
+    public static Session refreshSession(@NotNull Context ctx)
+            throws UnauthorisedException, TokenTheftDetectedException, GeneralException {
         CookieAndHeaders.saveFrontendInfoFromRequest(ctx);
         String inputRefreshToken = CookieAndHeaders.getRefreshTokenFromCookie(ctx);
         if (inputRefreshToken == null) {
@@ -143,6 +147,46 @@ public class SuperTokens {
     public static void updateJWTPayload(@NotNull String sessionHandle, @NotNull JsonObject newJWTPayload)
             throws GeneralException, UnauthorisedException {
         SessionFunctions.updateJWTPayload(sessionHandle, newJWTPayload);
+    }
+
+    // -----------------------------------------
+
+    public static Session getFromContext(Context ctx) {
+        return ctx.attribute(CONTEXT_ATTRIBUTE_KEY);
+    }
+
+    public static Handler middleware() {
+        return middleware(null);
+    }
+
+    public static Handler middleware(final Boolean antiCsrfCheck) {
+        return ctx -> {
+            Boolean antiCsrfCheckInLambda = antiCsrfCheck;
+            if (ctx.req.getMethod().equalsIgnoreCase("options") ||
+                    ctx.req.getMethod().equalsIgnoreCase("trace")) {
+                return;
+            }
+            String path = ctx.path().split("\\?")[0];   // TODO: not sure about this part
+            HandshakeInfo handshakeInfo = HandshakeInfo.getInstance();
+            if (
+                    (handshakeInfo.refreshTokenPath.equals(path)) ||
+                    (handshakeInfo.refreshTokenPath.equals(path + "/")) ||
+                    ((handshakeInfo.refreshTokenPath + "/").equals(path))
+                    &&
+                    ctx.req.getMethod().equalsIgnoreCase("post")
+            ) {
+                ctx.attribute(CONTEXT_ATTRIBUTE_KEY, refreshSession(ctx));
+            } else {
+                if (antiCsrfCheckInLambda == null) {
+                    antiCsrfCheckInLambda = !ctx.req.getMethod().equalsIgnoreCase("get");
+                }
+                ctx.attribute(CONTEXT_ATTRIBUTE_KEY, getSession(ctx, antiCsrfCheckInLambda));
+            }
+        };
+    }
+
+    public static SuperTokensExceptionHandler exceptionHandler() {
+        return new SuperTokensExceptionHandler();
     }
 
 }
