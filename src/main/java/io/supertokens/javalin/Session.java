@@ -2,15 +2,20 @@ package io.supertokens.javalin;
 
 import com.google.gson.JsonObject;
 import io.javalin.http.Context;
+import io.supertokens.javalin.core.Exception.GeneralException;
+import io.supertokens.javalin.core.Exception.UnauthorisedException;
+import io.supertokens.javalin.core.HandshakeInfo;
+import io.supertokens.javalin.core.InformationHolders.SessionTokens;
+import io.supertokens.javalin.core.SessionFunctions;
 import org.jetbrains.annotations.NotNull;
 
 public class Session {
 
-    private final String accessToken;
-    private final String sessionHandle;
-    private final String userId;
-    private final JsonObject userDataInJWT;
-    private final Context ctx;
+    private String accessToken;
+    private String sessionHandle;
+    private String userId;
+    private JsonObject userDataInJWT;
+    private Context ctx;
 
     Session(String accessToken, String sessionHandle, String userId, JsonObject userDataInJWT, Context ctx) {
         this.accessToken = accessToken;
@@ -20,40 +25,94 @@ public class Session {
         this.ctx = ctx;
     }
 
-    public void revokeSession() {
-        // TODO:
+    public void revokeSession() throws GeneralException {
+        if (SessionFunctions.revokeSession(this.sessionHandle)) {
+            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
+            CookieAndHeaders.clearSessionFromCookie(
+                    ctx,
+                    handShakeInfo.cookieDomain,
+                    handShakeInfo.cookieSecure,
+                    handShakeInfo.accessTokenPath,
+                    handShakeInfo.refreshTokenPath,
+                    handShakeInfo.idRefreshTokenPath,
+                    handShakeInfo.cookieSameSite
+            );
+        }
     }
 
-    public JsonObject getSessionData() {
-        // TODO:
-        return null;
+    public JsonObject getSessionData() throws GeneralException, UnauthorisedException {
+        try {
+            return SessionFunctions.getSessionData(this.sessionHandle);
+        } catch (UnauthorisedException err) {
+            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
+            CookieAndHeaders.clearSessionFromCookie(
+                    ctx,
+                    handShakeInfo.cookieDomain,
+                    handShakeInfo.cookieSecure,
+                    handShakeInfo.accessTokenPath,
+                    handShakeInfo.refreshTokenPath,
+                    handShakeInfo.idRefreshTokenPath,
+                    handShakeInfo.cookieSameSite
+            );
+            throw err;
+        }
     }
 
-    public void updateSessionData(@NotNull JsonObject newSessionData) {
-        // TODO:
+    public void updateSessionData(@NotNull JsonObject newSessionData) throws GeneralException, UnauthorisedException {
+        try {
+            SessionFunctions.updateSessionData(this.sessionHandle, newSessionData);
+        } catch (UnauthorisedException err) {
+            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
+            CookieAndHeaders.clearSessionFromCookie(
+                    ctx,
+                    handShakeInfo.cookieDomain,
+                    handShakeInfo.cookieSecure,
+                    handShakeInfo.accessTokenPath,
+                    handShakeInfo.refreshTokenPath,
+                    handShakeInfo.idRefreshTokenPath,
+                    handShakeInfo.cookieSameSite
+            );
+            throw err;
+        }
     }
 
     public String getUserId() {
-        // TODO:
-        return null;
+        return this.userId;
     }
 
     public JsonObject getJWTPayload() {
-        // TODO:
-        return null;
+        return this.userDataInJWT;
     }
 
     public String getSessionHandle() {
-        // TODO:
-        return null;
+        return this.sessionHandle;
     }
 
     public String getAccessToken() {
-        // TODO:
-        return null;
+        return this.accessToken;
     }
 
-    public void updateJWTPayload(@NotNull JsonObject newJWTPayload) {
-        // TODO:
+    public void updateJWTPayload(@NotNull JsonObject newJWTPayload) throws UnauthorisedException, GeneralException {
+        try {
+            SessionTokens sessionTokens = SessionFunctions.regenerateSession(this.accessToken, newJWTPayload);
+            this.userDataInJWT = sessionTokens.userDataInJWT;
+            if (sessionTokens.accessToken != null) {
+                this.accessToken = sessionTokens.accessToken.token;
+                CookieAndHeaders.attachAccessTokenToCookie(this.ctx, sessionTokens.accessToken);
+            }
+        } catch ( UnauthorisedException e) {
+            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
+            CookieAndHeaders.clearSessionFromCookie(
+                    ctx,
+                    handShakeInfo.cookieDomain,
+                    handShakeInfo.cookieSecure,
+                    handShakeInfo.accessTokenPath,
+                    handShakeInfo.refreshTokenPath,
+                    handShakeInfo.idRefreshTokenPath,
+                    handShakeInfo.cookieSameSite
+            );
+            throw e;
+        }
+
     }
 }

@@ -2,12 +2,15 @@ package io.supertokens.javalin;
 
 import com.google.gson.JsonObject;
 import io.javalin.http.Context;
+import io.supertokens.javalin.core.Exception.GeneralException;
+import io.supertokens.javalin.core.Exception.TokenTheftDetectedException;
+import io.supertokens.javalin.core.Exception.TryRefreshTokenException;
+import io.supertokens.javalin.core.Exception.UnauthorisedException;
+import io.supertokens.javalin.core.HandshakeInfo;
 import io.supertokens.javalin.core.InformationHolders.SessionTokens;
 import io.supertokens.javalin.core.SessionFunctions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import javax.servlet.http.Cookie;
 
 public class SuperTokens {
 
@@ -30,88 +33,116 @@ public class SuperTokens {
                 sessionTokens.userId, sessionTokens.userDataInJWT, ctx);
     }
 
-    public static Session getSession(@NotNull Context ctx, boolean doAntiCSRFCheck) {
-        // TODO:
-        return null;
+    public static Session getSession(@NotNull Context ctx, boolean doAntiCSRFCheck)
+            throws TryRefreshTokenException, UnauthorisedException {
+        CookieAndHeaders.saveFrontendInfoFromRequest(ctx);
+
+        String accessToken = CookieAndHeaders.getAccessTokenFromCookie(ctx);
+        if (accessToken == null) {
+            throw new TryRefreshTokenException("access token missing in cookies");
+        }
+        try {
+            String antiCsrfToken = CookieAndHeaders.getAntiCSRFTokenFromHeaders(ctx);
+            String idRefreshToken = CookieAndHeaders.getIdRefreshTokenFromCookie(ctx);
+            SessionTokens response = SessionFunctions.getSession(accessToken, antiCsrfToken, doAntiCSRFCheck, idRefreshToken);
+            if (response.accessToken != null) {
+                CookieAndHeaders.attachAccessTokenToCookie(ctx, response.accessToken);
+                accessToken = response.accessToken.token;
+            }
+            return new Session(accessToken, response.handle, response.userId, response.userDataInJWT, ctx);
+        } catch (UnauthorisedException e) {
+            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
+            CookieAndHeaders.clearSessionFromCookie(
+                    ctx,
+                    handShakeInfo.cookieDomain,
+                    handShakeInfo.cookieSecure,
+                    handShakeInfo.accessTokenPath,
+                    handShakeInfo.refreshTokenPath,
+                    handShakeInfo.idRefreshTokenPath,
+                    handShakeInfo.cookieSameSite);
+            throw e;
+        }
     }
 
-    public static Session refreshSession(@NotNull Context ctx) {
-        // TODO:
-        return null;
+    public static Session refreshSession(@NotNull Context ctx) throws UnauthorisedException, TokenTheftDetectedException {
+        CookieAndHeaders.saveFrontendInfoFromRequest(ctx);
+        String inputRefreshToken = CookieAndHeaders.getRefreshTokenFromCookie(ctx);
+        if (inputRefreshToken == null) {
+            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
+            CookieAndHeaders.clearSessionFromCookie(
+                    ctx,
+                    handShakeInfo.cookieDomain,
+                    handShakeInfo.cookieSecure,
+                    handShakeInfo.accessTokenPath,
+                    handShakeInfo.refreshTokenPath,
+                    handShakeInfo.idRefreshTokenPath,
+                    handShakeInfo.cookieSameSite);
+            throw new UnauthorisedException("Missing auth tokens in cookies. Have you set the correct refresh API path in your frontend and SuperTokens config?");
+        }
+        try {
+
+            SessionTokens sessionTokens = SessionFunctions.refreshSession(inputRefreshToken);
+            CookieAndHeaders.attachAccessTokenToCookie(ctx, sessionTokens.accessToken);
+            CookieAndHeaders.attachRefreshTokenToCookie(ctx, sessionTokens.refreshToken);
+            CookieAndHeaders.setIdRefreshTokenInHeaderAndCookie(ctx, sessionTokens.idRefreshToken);
+            if (sessionTokens.antiCsrfToken != null) {
+                CookieAndHeaders.setAntiCsrfTokenInHeaders(ctx, sessionTokens.antiCsrfToken);
+            }
+            return new Session(sessionTokens.accessToken.token, sessionTokens.handle,
+                    sessionTokens.userId, sessionTokens.userDataInJWT, ctx);
+
+        } catch (UnauthorisedException | TokenTheftDetectedException e) {
+            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
+            CookieAndHeaders.clearSessionFromCookie(
+                    ctx,
+                    handShakeInfo.cookieDomain,
+                    handShakeInfo.cookieSecure,
+                    handShakeInfo.accessTokenPath,
+                    handShakeInfo.refreshTokenPath,
+                    handShakeInfo.idRefreshTokenPath,
+                    handShakeInfo.cookieSameSite);
+            throw e;
+        }
     }
 
-    public static String[] revokeAllSessionsForUser(@NotNull String userId) {
-        // TODO:
-        return new String[]{};
+    public static String[] revokeAllSessionsForUser(@NotNull String userId) throws GeneralException {
+        return SessionFunctions.revokeAllSessionsForUser(userId);
     }
 
-    public static String[] getAllSessionHandlesForUser(@NotNull String userId) {
-        // TODO:
-        return new String[]{};
+    public static String[] getAllSessionHandlesForUser(@NotNull String userId) throws GeneralException {
+        return SessionFunctions.getAllSessionHandlesForUser(userId);
     }
 
-    public static boolean revokeSession(@NotNull String sessionHandle) {
-        // TODO:
-        return false;
+    public static boolean revokeSession(@NotNull String sessionHandle) throws GeneralException {
+        return SessionFunctions.revokeSession(sessionHandle);
     }
 
-    public static String[] revokeMultipleSessions(@NotNull String[] sessionHandle) {
-        // TODO:
-        return new String[]{};
+    public static String[] revokeMultipleSessions(@NotNull String[] sessionHandles) throws GeneralException {
+        return SessionFunctions.revokeMultipleSessions(sessionHandles);
     }
 
-    public static JsonObject getSessionData(@NotNull String sessionHandle) {
-        // TODO:
-        return null;
+    public static JsonObject getSessionData(@NotNull String sessionHandle)
+            throws GeneralException, UnauthorisedException {
+        return SessionFunctions.getSessionData(sessionHandle);
     }
 
-    public static void updateSessionData(@NotNull String sessionHandle, @NotNull JsonObject sessionData) {
-        // TODO:
+    public static void updateSessionData(@NotNull String sessionHandle, @NotNull JsonObject sessionData)
+            throws GeneralException, UnauthorisedException {
+        SessionFunctions.updateSessionData(sessionHandle, sessionData);
     }
 
     public static void setRelevantHeadersForOptionsAPI(@NotNull Context ctx) {
-        // TODO:
+        CookieAndHeaders.setOptionsAPIHeader(ctx);
     }
 
-    public static JsonObject geJWTPayload(@NotNull String sessionHandle) {
-        // TODO:
-        return null;
+    public static JsonObject getJWTPayload(@NotNull String sessionHandle) throws GeneralException,
+            UnauthorisedException {
+        return SessionFunctions.getJWTPayload(sessionHandle);
     }
 
-    public static void updateJWTPayload(@NotNull String sessionHandle, @NotNull JsonObject newJWTPayload) {
-        // TODO:
+    public static void updateJWTPayload(@NotNull String sessionHandle, @NotNull JsonObject newJWTPayload)
+            throws GeneralException, UnauthorisedException {
+        SessionFunctions.updateJWTPayload(sessionHandle, newJWTPayload);
     }
 
 }
-
-
-//---------------------------------------------
-
-/*
-*
-* public void someTest() throws JsonProcessingException {
-        SomeClass[] sc = new SomeClass[]{new SomeClass(), new SomeClass()};
-        Map<String, Object> payloadClaims = new HashMap<>();
-        payloadClaims.put("hi", sc);
-        Map<String, Object> payloadClaims1 = new HashMap<>();
-        payloadClaims1.put("one", payloadClaims);
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        mapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
-        String payloadJson = mapper.writeValueAsString(payloadClaims1);
-        System.out.println(payloadJson);
-        System.out.println("------------");
-        Map<String, Object> decoded = mapper.readValue(payloadJson, Map.class);
-        Map a = (Map<String, Object>)decoded.get("one");
-        ((SomeClass[])(a.get("hi")))[0].print();
-    }
-
-    private static class SomeClass {
-        private int num = 123;
-
-        public void print() {
-            System.out.println(this.num);
-        }
-    }
-* */

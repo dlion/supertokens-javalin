@@ -40,6 +40,6 @@ SuperTokens.middleware(boolean) -> anticsrf true / false
 SuperTokens.config("localhost:3567;192.168.2.4:9000");
 
 SuperTokens.exceptionHandler()
-    .onUnauthorisedError((Exception e, Context ctx) -> {})
-    .onTryRefreshTokenError((Exception e, Context ctx) -> {})
+    .onUnauthorisedError((UnauthorisedException e, Context ctx) -> {})
+    .onTryRefreshTokenError((TryRefreshToken e, Context ctx) -> {})
     .onTokenTheftDetectedError((String sessionHandle, String userId, Context ctx) -> {});
