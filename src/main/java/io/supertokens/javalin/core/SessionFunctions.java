@@ -6,6 +6,7 @@ import io.supertokens.javalin.core.Exception.TokenTheftDetectedException;
 import io.supertokens.javalin.core.Exception.TryRefreshTokenException;
 import io.supertokens.javalin.core.Exception.UnauthorisedException;
 import io.supertokens.javalin.core.InformationHolders.SessionTokens;
+import io.supertokens.javalin.core.Querier.Querier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,10 +14,21 @@ import org.jetbrains.annotations.Nullable;
 
 public class SessionFunctions {
 
+    public static void config(String config) throws GeneralException {
+        Querier.initInstance(config);
+    }
+
     public static SessionTokens createNewSession(@NotNull String userId, @Nullable JsonObject jwtPayload,
                                                  @Nullable JsonObject sessionData) throws GeneralException {
-        // TODO:
-        return null;
+        JsonObject body = new JsonObject();
+        body.addProperty("userId", userId);
+        body.add("userDataInJWT", jwtPayload);
+        body.add("userDataInDatabase", sessionData);
+        JsonObject response = Querier.getInstance().sendPostRequest("/session", body);
+        HandshakeInfo.getInstance().updateJwtSigningPublicKeyInfo(
+                response.get("jwtSigningPublicKey").getAsString(),
+                response.get("jwtSigningPublicKeyExpiryTime").getAsLong());
+        return Utils.parseJsonResponse(response);
     }
 
     public static SessionTokens getSession(String accessToken, String antiCsrfToken, boolean doAntiCsrfCheck, String idRefreshToken) throws

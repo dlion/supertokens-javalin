@@ -2,6 +2,7 @@ package io.supertokens.javalin.core;
 
 import com.google.gson.JsonObject;
 import io.supertokens.javalin.core.Exception.GeneralException;
+import io.supertokens.javalin.core.Querier.Querier;
 
 public class HandshakeInfo {
 
@@ -21,7 +22,7 @@ public class HandshakeInfo {
 
     public synchronized static HandshakeInfo getInstance() throws GeneralException {
         if (HandshakeInfo.instance == null) {
-            JsonObject response = new JsonObject(); // TODO: send request
+            JsonObject response = Querier.getInstance().sendPostRequest("/handshake", new JsonObject());
             HandshakeInfo.instance = new HandshakeInfo(
                     response.get("jwtSigningPublicKey").getAsString(),
                     response.get("cookieDomain").getAsString(),

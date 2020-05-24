@@ -17,6 +17,10 @@ public class SuperTokens {
 
     private static final String CONTEXT_ATTRIBUTE_KEY = "SUPERTOKENS_SESSION";
 
+    public static void config(String config) throws GeneralException {
+        SessionFunctions.config(config);
+    }
+
     public static SessionBuilder newSession(@NotNull Context ctx, @NotNull  String userId) {
         return new SessionBuilder(ctx, userId);
     }
