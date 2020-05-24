@@ -19,7 +19,7 @@ public class HandshakeInfo {
     public  String idRefreshTokenPath;
     public  int sessionExpiredStatusCode;
 
-    public static HandshakeInfo getInstance() throws GeneralException {
+    public synchronized static HandshakeInfo getInstance() throws GeneralException {
         if (HandshakeInfo.instance == null) {
             JsonObject response = new JsonObject(); // TODO: send request
             HandshakeInfo.instance = new HandshakeInfo(
@@ -65,7 +65,9 @@ public class HandshakeInfo {
     }
 
     public void updateJwtSigningPublicKeyInfo(String newKey, long newExpiry) {
-        this.jwtSigningPublicKey = newKey;
-        this.jwtSigningPublicKeyExpiryTime = newExpiry;
+        synchronized (HandshakeInfo.class) {
+            this.jwtSigningPublicKey = newKey;
+            this.jwtSigningPublicKeyExpiryTime = newExpiry;
+        }
     };
 }
