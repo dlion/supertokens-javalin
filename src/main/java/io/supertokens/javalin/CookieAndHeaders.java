@@ -3,10 +3,11 @@ package io.supertokens.javalin;
 import io.javalin.http.Context;
 import io.supertokens.javalin.core.DeviceInfo;
 import io.supertokens.javalin.core.InformationHolders.TokenInfo;
+import org.eclipse.jetty.http.HttpCookie;
 
 import javax.servlet.http.Cookie;
 
-public class CookieAndHeaders {
+class CookieAndHeaders {
 
     private static final String accessTokenCookieKey = "sAccessToken";
     private static final String refreshTokenCookieKey = "sRefreshToken";
@@ -27,22 +28,33 @@ public class CookieAndHeaders {
         int expiry = Math.max(0, (int)((expires - System.currentTimeMillis())/1000.0));
         cookie.setMaxAge(expiry);
         cookie.setPath(path);
+
+        // TODO: check that these actually get set
+        if (sameSite.equals("none")) {
+            cookie.setComment(HttpCookie.SAME_SITE_NONE_COMMENT);
+        } else if (sameSite.equals("lax")) {
+            cookie.setComment(HttpCookie.SAME_SITE_LAX_COMMENT);
+        } else {
+            cookie.setComment(HttpCookie.SAME_SITE_STRICT_COMMENT);
+        }
         ctx.cookie(cookie);
-        // TODO: sameSite
     }
 
     private static void setHeader(Context ctx, String key, String value) {
-        // TODO:
+        String existing = getHeader(ctx, key);
+        if (existing == null) {
+            ctx.header(key, value);
+        } else {
+            ctx.header(key, existing + ", " + value);
+        }
     }
 
     private static String getCookieValue(Context ctx, String key) {
-        // TODO:
-        return null;
+        return ctx.cookie(key);
     }
 
     private static String getHeader(Context ctx, String key) {
-        // TODO:
-        return null;
+        return ctx.header(key);
     }
 
     static void saveFrontendInfoFromRequest(Context ctx) {
