@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import io.supertokens.javalin.core.InformationHolders.SessionTokens;
 import io.supertokens.javalin.core.InformationHolders.TokenInfo;
 
+import java.util.*;
+
 public class Utils {
 
     public static SessionTokens parseJsonResponse(JsonObject response) {
@@ -55,7 +57,39 @@ public class Utils {
     }
 
     public static String getLargestVersionFromIntersection(String[] v1, String[] v2) {
-        // TODO:
-        return null;
+        Set<String> v2Set = new HashSet<>(Arrays.asList(v2));
+        List<String> intesection = new ArrayList<>();
+        for (String s : v1) {
+            if (v2Set.contains(s)) {
+                intesection.add(s);
+            }
+        }
+        if (intesection.size() == 0) {
+            return null;
+        }
+        String maxSoFar = intesection.get(0);
+        for (String s : intesection) {
+            maxSoFar = maxVersion(s, maxSoFar);
+        }
+        return maxSoFar;
+    }
+
+    private static String maxVersion(String version1, String version2) {
+        String[] splittedV1 = version1.split("\\.");
+        String[] splittedV2 = version2.split("\\.");
+        int minLength = Math.min(splittedV1.length, splittedV2.length);
+        for (int i = 0; i < minLength; i++) {
+            int v1 = Integer.parseInt(splittedV1[i]);
+            int v2 = Integer.parseInt(splittedV2[i]);
+            if (v1 > v2) {
+                return version1;
+            } else if (v2 > v1) {
+                return version2;
+            }
+        }
+        if (splittedV1.length >= splittedV2.length) {
+            return version1;
+        }
+        return version2;
     }
 }
