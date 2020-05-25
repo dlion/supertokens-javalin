@@ -1,4 +1,4 @@
-package io.supertokens.javalin.core.Querier;
+package io.supertokens.javalin.core.querier;
 
 class STInstance {
     String host;

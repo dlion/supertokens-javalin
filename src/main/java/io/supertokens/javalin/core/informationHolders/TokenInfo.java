@@ -1,4 +1,4 @@
-package io.supertokens.javalin.core.InformationHolders;
+package io.supertokens.javalin.core.informationHolders;
 
 public class TokenInfo {
     public final String token;

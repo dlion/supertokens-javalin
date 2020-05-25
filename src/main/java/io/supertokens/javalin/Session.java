@@ -2,10 +2,10 @@ package io.supertokens.javalin;
 
 import com.google.gson.JsonObject;
 import io.javalin.http.Context;
-import io.supertokens.javalin.core.Exception.GeneralException;
-import io.supertokens.javalin.core.Exception.UnauthorisedException;
+import io.supertokens.javalin.core.exception.GeneralException;
+import io.supertokens.javalin.core.exception.UnauthorisedException;
 import io.supertokens.javalin.core.HandshakeInfo;
-import io.supertokens.javalin.core.InformationHolders.SessionTokens;
+import io.supertokens.javalin.core.informationHolders.SessionTokens;
 import io.supertokens.javalin.core.SessionFunctions;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,10 +1,10 @@
-package io.supertokens.javalin.core.Querier;
+package io.supertokens.javalin.core.querier;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.supertokens.javalin.Constants;
 import io.supertokens.javalin.core.DeviceInfo;
-import io.supertokens.javalin.core.Exception.GeneralException;
+import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.Utils;
 import org.jetbrains.annotations.NotNull;
 

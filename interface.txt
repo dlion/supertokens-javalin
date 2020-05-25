@@ -1,5 +1,5 @@
 import io.supertokens.javalin;
-import io.supertokens.javalin.core.Exception.SuperTokensException;
+import io.supertokens.javalin.core.exception.SuperTokensException;
 
 Javalin app = Javalin.create().start(7000);
 

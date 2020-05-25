@@ -2,7 +2,7 @@ package io.supertokens.javalin;
 
 import io.javalin.http.Context;
 import io.supertokens.javalin.core.DeviceInfo;
-import io.supertokens.javalin.core.InformationHolders.TokenInfo;
+import io.supertokens.javalin.core.informationHolders.TokenInfo;
 import org.eclipse.jetty.http.HttpCookie;
 
 import javax.servlet.http.Cookie;

@@ -2,7 +2,7 @@ package io.supertokens.javalin;
 
 import io.javalin.http.Context;
 import io.javalin.http.ExceptionHandler;
-import io.supertokens.javalin.core.Exception.*;
+import io.supertokens.javalin.core.exception.*;
 import io.supertokens.javalin.core.HandshakeInfo;
 import org.jetbrains.annotations.NotNull;
 

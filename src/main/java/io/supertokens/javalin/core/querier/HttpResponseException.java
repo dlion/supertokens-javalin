@@ -1,4 +1,4 @@
-package io.supertokens.javalin.core.Querier;
+package io.supertokens.javalin.core.querier;
 
 public class HttpResponseException extends Exception {
 

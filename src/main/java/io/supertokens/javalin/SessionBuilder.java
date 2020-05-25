@@ -2,11 +2,9 @@ package io.supertokens.javalin;
 
 import com.google.gson.JsonObject;
 import io.javalin.http.Context;
-import io.supertokens.javalin.core.Exception.GeneralException;
+import io.supertokens.javalin.core.exception.GeneralException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 
 public class SessionBuilder {
 

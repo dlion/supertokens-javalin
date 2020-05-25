@@ -1,8 +1,8 @@
 package io.supertokens.javalin.core;
 
 import com.google.gson.JsonObject;
-import io.supertokens.javalin.core.Exception.GeneralException;
-import io.supertokens.javalin.core.Querier.Querier;
+import io.supertokens.javalin.core.exception.GeneralException;
+import io.supertokens.javalin.core.querier.Querier;
 
 public class HandshakeInfo {
 

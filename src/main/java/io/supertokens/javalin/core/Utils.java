@@ -1,9 +1,13 @@
 package io.supertokens.javalin.core;
 
 import com.google.gson.JsonObject;
-import io.supertokens.javalin.core.InformationHolders.SessionTokens;
-import io.supertokens.javalin.core.InformationHolders.TokenInfo;
+import io.supertokens.javalin.core.informationHolders.SessionTokens;
+import io.supertokens.javalin.core.informationHolders.TokenInfo;
 
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 
 public class Utils {
@@ -92,4 +96,29 @@ public class Utils {
         }
         return version2;
     }
+
+    public static String convertToBase64(String str) {
+        return new String(Base64.getEncoder().encode(stringToBytes(str)));
+    }
+
+    private static byte[] stringToBytes(String str) {
+        return str.getBytes(StandardCharsets.UTF_8);
+    }
+
+    public static boolean verifyWithPublicKey(String content, String signature, String publicKey)
+            throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
+        Signature sign = Signature.getInstance("SHA256withRSA");
+        Base64.Decoder decoder = Base64.getDecoder();
+        X509EncodedKeySpec ks = new X509EncodedKeySpec(decoder.decode(publicKey));
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        PublicKey pub = kf.generatePublic(ks);
+
+        sign.initVerify(pub);
+        sign.update(stringToBytes(content));
+        return sign.verify(decoder.decode(signature));
+    }
+    public static String convertFromBase64(String str) {
+        return new String(Base64.getDecoder().decode(stringToBytes(str)));
+    }
+
 }

@@ -1,4 +1,4 @@
-package io.supertokens.javalin.core.Querier;
+package io.supertokens.javalin.core.querier;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;

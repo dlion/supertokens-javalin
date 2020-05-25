@@ -3,12 +3,13 @@ package io.supertokens.javalin.core;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import io.supertokens.javalin.core.Exception.GeneralException;
-import io.supertokens.javalin.core.Exception.TokenTheftDetectedException;
-import io.supertokens.javalin.core.Exception.TryRefreshTokenException;
-import io.supertokens.javalin.core.Exception.UnauthorisedException;
-import io.supertokens.javalin.core.InformationHolders.SessionTokens;
-import io.supertokens.javalin.core.Querier.Querier;
+import io.supertokens.javalin.core.accessToken.AccessToken;
+import io.supertokens.javalin.core.exception.GeneralException;
+import io.supertokens.javalin.core.exception.TokenTheftDetectedException;
+import io.supertokens.javalin.core.exception.TryRefreshTokenException;
+import io.supertokens.javalin.core.exception.UnauthorisedException;
+import io.supertokens.javalin.core.informationHolders.SessionTokens;
+import io.supertokens.javalin.core.querier.Querier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,8 +38,50 @@ public class SessionFunctions {
 
     public static SessionTokens getSession(String accessToken, String antiCsrfToken, boolean doAntiCsrfCheck, String idRefreshToken) throws
             UnauthorisedException, TryRefreshTokenException, GeneralException {
-        // TODO:
-        return null;
+        if (idRefreshToken == null) {
+            throw new UnauthorisedException("idRefreshToken missing");
+        }
+
+        // try to verify within SDK
+        HandshakeInfo handshakeInfo = HandshakeInfo.getInstance();
+        try {
+            if (handshakeInfo.jwtSigningPublicKeyExpiryTime > System.currentTimeMillis()) {
+                AccessToken.AccessTokenInfo accessTokenInfo = AccessToken.getInfoFromAccessToken(accessToken, handshakeInfo.jwtSigningPublicKey,
+                            handshakeInfo.enableAntiCsrf && doAntiCsrfCheck);
+                if (
+                        handshakeInfo.enableAntiCsrf &&
+                                doAntiCsrfCheck &&
+                                (antiCsrfToken == null || !antiCsrfToken.equals(accessTokenInfo.antiCsrfToken))
+                ) {
+                    if (antiCsrfToken == null) {
+                        throw new TryRefreshTokenException("provided antiCsrfToken is null. If you do not want anti-csrf check for this API, please set doAntiCsrfCheck to true");
+                    } else {
+                        throw new TryRefreshTokenException("anti-csrf check failed");
+                    }
+                }
+                if (!handshakeInfo.accessTokenBlacklistingEnabled && accessTokenInfo.parentRefreshTokenHash1 == null) {
+                    return new SessionTokens(accessTokenInfo.sessionHandle, accessTokenInfo.userId,
+                            accessTokenInfo.userData, null, null, null, null);
+                }
+            }
+        } catch (TryRefreshTokenException ignored) {}
+
+        // send request below.
+
+        JsonObject body = new JsonObject();
+        body.addProperty("accessToken", accessToken);
+        body.addProperty("doAntiCsrfCheck", doAntiCsrfCheck);
+        if (antiCsrfToken != null) {
+            body.addProperty("antiCsrfToken", antiCsrfToken);
+        }
+        JsonObject response = Querier.getInstance().sendPostRequest("/session/verify", body);
+        if (response.get("message").getAsString().equals("OK")) {
+            return Utils.parseJsonResponse(response);
+        } else if (response.get("message").getAsString().equals("UNAUTHORISED")) {
+            throw new UnauthorisedException(response.get("message").getAsString());
+        } else {
+            throw new TryRefreshTokenException(response.get("message").getAsString());
+        }
     }
 
     public static SessionTokens refreshSession(String refreshToken) throws UnauthorisedException,

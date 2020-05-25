@@ -1,4 +1,4 @@
-package io.supertokens.javalin.core.Exception;
+package io.supertokens.javalin.core.exception;
 
 public class UnauthorisedException extends SuperTokensException {
 
