@@ -1,6 +1,8 @@
 package io.supertokens.javalin.core;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import io.supertokens.javalin.core.Exception.GeneralException;
 import io.supertokens.javalin.core.Exception.TokenTheftDetectedException;
 import io.supertokens.javalin.core.Exception.TryRefreshTokenException;
@@ -9,6 +11,8 @@ import io.supertokens.javalin.core.InformationHolders.SessionTokens;
 import io.supertokens.javalin.core.Querier.Querier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
 
 /*This can be moved to a separate package and be shared with other java webservers.*/
 
@@ -39,51 +43,119 @@ public class SessionFunctions {
 
     public static SessionTokens refreshSession(String refreshToken) throws UnauthorisedException,
             TokenTheftDetectedException, GeneralException {
-        // TODO:
-        return null;
+        JsonObject body = new JsonObject();
+        body.addProperty("refreshToken", refreshToken);
+        JsonObject response = Querier.getInstance().sendPostRequest("/session/refresh", body);
+        if (response.get("status").getAsString().equals("OK")) {
+            return Utils.parseJsonResponse(response);
+        } else if (response.get("status").getAsString().equals("UNAUTHORISED")) {
+            throw new UnauthorisedException(response.get("message").getAsString());
+        } else {
+            throw new TokenTheftDetectedException(
+                    response.get("session").getAsJsonObject().get("handle").getAsString(),
+                    response.get("session").getAsJsonObject().get("userId").getAsString());
+        }
     }
 
     public static String[] revokeAllSessionsForUser(@NotNull String userId) throws GeneralException {
-        // TODO:
-        return null;
+        JsonObject body = new JsonObject();
+        body.addProperty("userId", userId);
+        JsonObject response = Querier.getInstance().sendPostRequest("/session/remove", body);
+        JsonArray jsonArray = response.get("sessionHandlesRevoked").getAsJsonArray();
+
+        String[] result = new String[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++) {
+            result[i] = jsonArray.get(i).getAsString();
+        }
+        return result;
     }
 
     public static String[] getAllSessionHandlesForUser(@NotNull String userId) throws GeneralException {
-        // TODO:
-        return new String[]{};
+        HashMap<String, String> params = new HashMap<>();
+        params.put("userId", userId);
+        JsonObject response = Querier.getInstance().sendGetRequest("/session/user", params);
+        JsonArray jsonArray = response.get("sessionHandles").getAsJsonArray();
+
+        String[] result = new String[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++) {
+            result[i] = jsonArray.get(i).getAsString();
+        }
+        return result;
     }
 
     public static boolean revokeSession(@NotNull String sessionHandle) throws GeneralException {
-        // TODO:
-        return false;
+        return revokeMultipleSessions(new String[]{sessionHandle}).length == 1;
     }
 
     public static String[] revokeMultipleSessions(@NotNull String[] sessionHandles) throws GeneralException {
-        // TODO:
-        return new String[]{};
+        JsonArray sessionHandleJson = new JsonArray();
+        for (String handle : sessionHandles) {
+            sessionHandleJson.add(new JsonPrimitive(handle));
+        }
+        JsonObject body = new JsonObject();
+        body.add("sessionHandles", sessionHandleJson);
+        JsonObject response = Querier.getInstance().sendPostRequest("/session/remove", body);
+        JsonArray jsonArray = response.get("sessionHandlesRevoked").getAsJsonArray();
+
+        String[] result = new String[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++) {
+            result[i] = jsonArray.get(i).getAsString();
+        }
+        return result;
     }
 
     public static JsonObject getSessionData(@NotNull String sessionHandle) throws GeneralException, UnauthorisedException {
-        // TODO:
-        return null;
+        HashMap<String, String> params = new HashMap<>();
+        params.put("sessionHandle", sessionHandle);
+        JsonObject response = Querier.getInstance().sendGetRequest("/session/data", params);
+        if (response.get("status").getAsString().equals("OK")) {
+            return response.get("userDataInDatabase").getAsJsonObject();
+        } else {
+            throw new UnauthorisedException(response.get("message").getAsString());
+        }
     }
 
-    public static void updateSessionData(@NotNull String sessionHandle, @NotNull JsonObject sessionData) throws GeneralException, UnauthorisedException {
-        // TODO:
+    public static void updateSessionData(@NotNull String sessionHandle, @NotNull JsonObject newSessionData) throws GeneralException, UnauthorisedException {
+        JsonObject body = new JsonObject();
+        body.addProperty("sessionHandle", sessionHandle);
+        body.add("userDataInDatabase", newSessionData);
+        JsonObject response = Querier.getInstance().sendPutRequest("/session/data", body);
+        if (response.get("status").getAsString().equals("UNAUTHORISED")) {
+            throw new UnauthorisedException(response.get("message").getAsString());
+        }
     }
 
     public static JsonObject getJWTPayload(@NotNull String sessionHandle) throws GeneralException, UnauthorisedException {
-        // TODO:
-        return null;
+        HashMap<String, String> params = new HashMap<>();
+        params.put("sessionHandle", sessionHandle);
+        JsonObject response = Querier.getInstance().sendGetRequest("/jwt/data", params);
+        if (response.get("status").getAsString().equals("OK")) {
+            return response.get("userDataInJWT").getAsJsonObject();
+        } else {
+            throw new UnauthorisedException(response.get("message").getAsString());
+        }
     }
 
     public static void updateJWTPayload(@NotNull String sessionHandle, @NotNull JsonObject newJWTPayload) throws GeneralException, UnauthorisedException {
-        // TODO:
+        JsonObject body = new JsonObject();
+        body.addProperty("sessionHandle", sessionHandle);
+        body.add("userDataInJWT", newJWTPayload);
+        JsonObject response = Querier.getInstance().sendPutRequest("/jwt/data", body);
+        if (response.get("status").getAsString().equals("UNAUTHORISED")) {
+            throw new UnauthorisedException(response.get("message").getAsString());
+        }
     }
 
-    public static SessionTokens regenerateSession(String accessToken, JsonObject userDataInJWT) throws GeneralException, UnauthorisedException {
-        // TODO:
-        return null;
+    public static SessionTokens regenerateSession(String accessToken, JsonObject newJWTPayload) throws GeneralException, UnauthorisedException {
+        JsonObject body = new JsonObject();
+        body.addProperty("accessToken", accessToken);
+        body.add("userDataInJWT", newJWTPayload);
+        JsonObject response = Querier.getInstance().sendPostRequest("/session/regenerate", body);
+        if (response.get("status").getAsString().equals("UNAUTHORISED")) {
+            throw new UnauthorisedException(response.get("message").getAsString());
+        } else {
+            return Utils.parseJsonResponse(response);
+        }
     }
 }
 
