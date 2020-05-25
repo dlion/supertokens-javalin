@@ -55,7 +55,9 @@ public class HttpRequest {
             con = (HttpURLConnection) obj.openConnection();
             con.setConnectTimeout(10000);
             con.setReadTimeout(10000);
-            con.setRequestProperty("cdi-version", version);
+            if (version != null) {
+                con.setRequestProperty("cdi-version", version);
+            }
 
             int responseCode = con.getResponseCode();
 
@@ -102,7 +104,9 @@ public class HttpRequest {
             con.setConnectTimeout(10000);
             con.setReadTimeout(10000);
             con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            con.setRequestProperty("cdi-version", version);
+            if (version != null) {
+                con.setRequestProperty("cdi-version", version);
+            }
 
             if (requestBody != null) {
                 con.setDoOutput(true);

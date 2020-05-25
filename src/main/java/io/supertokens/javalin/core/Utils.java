@@ -4,9 +4,9 @@ import com.google.gson.JsonObject;
 import io.supertokens.javalin.core.InformationHolders.SessionTokens;
 import io.supertokens.javalin.core.InformationHolders.TokenInfo;
 
-class Utils {
+public class Utils {
 
-    static SessionTokens parseJsonResponse(JsonObject response) {
+    public static SessionTokens parseJsonResponse(JsonObject response) {
         JsonObject sessionJson = response.getAsJsonObject("session");
         JsonObject accessTokenJson = response.getAsJsonObject("accessToken");
         JsonObject refreshTokenJson = response.getAsJsonObject("refreshToken");
@@ -52,5 +52,10 @@ class Utils {
                 sessionJson.get("userId").getAsString(),
                 sessionJson.getAsJsonObject("userDataInJWT"),
                 accessToken, refreshToken, idRefreshToken, antiCSRFToken);
+    }
+
+    public static String getLargestVersionFromIntersection(String[] v1, String[] v2) {
+        // TODO:
+        return null;
     }
 }

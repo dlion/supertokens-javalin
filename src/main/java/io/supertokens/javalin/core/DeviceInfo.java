@@ -10,9 +10,13 @@ public class DeviceInfo {
 
     private DeviceInfo() {}
 
-    public synchronized static DeviceInfo getInstance() {
+    public static DeviceInfo getInstance() {
         if (instance == null) {
-            instance = new DeviceInfo();
+            synchronized (DeviceInfo.class) {
+                if (instance == null) {
+                    instance = new DeviceInfo();
+                }
+            }
         }
         return instance;
     }
@@ -35,8 +39,8 @@ public class DeviceInfo {
     }
 
     public static class Device {
-        String name;
-        String version;
+        public String name;
+        public String version;
 
         public Device(String name, String version) {
             this.name = name;

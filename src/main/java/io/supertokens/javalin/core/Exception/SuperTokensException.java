@@ -6,8 +6,8 @@ public class SuperTokensException extends Exception {
         super(msg);
     }
 
-    public SuperTokensException(String msg, Exception e) {
-        super(msg, e);
+    public SuperTokensException(Exception e) {
+        super(e);
     }
 
 }

@@ -20,21 +20,25 @@ public class HandshakeInfo {
     public  String idRefreshTokenPath;
     public  int sessionExpiredStatusCode;
 
-    public synchronized static HandshakeInfo getInstance() throws GeneralException {
+    public static HandshakeInfo getInstance() throws GeneralException {
         if (HandshakeInfo.instance == null) {
-            JsonObject response = Querier.getInstance().sendPostRequest("/handshake", new JsonObject());
-            HandshakeInfo.instance = new HandshakeInfo(
-                    response.get("jwtSigningPublicKey").getAsString(),
-                    response.get("cookieDomain").getAsString(),
-                    response.get("cookieSecure").getAsBoolean(),
-                    response.get("accessTokenPath").getAsString(),
-                    response.get("refreshTokenPath").getAsString(),
-                    response.get("enableAntiCsrf").getAsBoolean(),
-                    response.get("accessTokenBlacklistingEnabled").getAsBoolean(),
-                    response.get("jwtSigningPublicKeyExpiryTime").getAsLong(),
-                    response.get("cookieSameSite").getAsString(),
-                    response.get("idRefreshTokenPath").getAsString(),
-                    response.get("sessionExpiredStatusCode").getAsInt());
+            synchronized (HandshakeInfo.class) {
+                if (instance == null) {
+                    JsonObject response = Querier.getInstance().sendPostRequest("/handshake", new JsonObject());
+                    HandshakeInfo.instance = new HandshakeInfo(
+                            response.get("jwtSigningPublicKey").getAsString(),
+                            response.get("cookieDomain").getAsString(),
+                            response.get("cookieSecure").getAsBoolean(),
+                            response.get("accessTokenPath").getAsString(),
+                            response.get("refreshTokenPath").getAsString(),
+                            response.get("enableAntiCsrf").getAsBoolean(),
+                            response.get("accessTokenBlacklistingEnabled").getAsBoolean(),
+                            response.get("jwtSigningPublicKeyExpiryTime").getAsLong(),
+                            response.get("cookieSameSite").getAsString(),
+                            response.get("idRefreshTokenPath").getAsString(),
+                            response.get("sessionExpiredStatusCode").getAsInt());
+                }
+            }
         }
         return HandshakeInfo.instance;
     }
