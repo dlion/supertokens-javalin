@@ -13,7 +13,7 @@ public class SuperTokensExceptionHandler implements ExceptionHandler<SuperTokens
     private ExceptionHandler<TokenTheftDetectedException> tokenTheftDetectedHandler;
     private ExceptionHandler<GeneralException> generalExceptionHandler;
 
-    SuperTokensExceptionHandler onUnauthorisedError(ExceptionHandler<UnauthorisedException> exceptionHandler) {
+    public SuperTokensExceptionHandler onUnauthorisedError(ExceptionHandler<UnauthorisedException> exceptionHandler) {
         this.unauthorisedHandler = exceptionHandler;
         return this;
     }
