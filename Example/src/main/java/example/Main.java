@@ -1,5 +1,6 @@
 package example;
 
+import io.supertokens.javalin.*;
 import io.javalin.Javalin;
 
 public class Main {
