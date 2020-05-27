@@ -23,7 +23,14 @@ public class DeviceInfo {
 
     public Device[] getFrontendSDKs() {
         synchronized (DeviceInfo.class) {
-            return (Device[]) this.frontendSDK.toArray();
+            if (this.frontendSDK.size() == 0) {
+                return new Device[]{};
+            }
+            Device[] result = new Device[this.frontendSDK.size()];
+            for (int i = 0; i < this.frontendSDK.size(); i++) {
+                result[i] = this.frontendSDK.get(i);
+            }
+            return result;
         }
     }
 

@@ -23,8 +23,8 @@ public class SessionFunctions {
         Querier.initInstance(config);
     }
 
-    public static SessionTokens createNewSession(@NotNull String userId, @Nullable JsonObject jwtPayload,
-                                                 @Nullable JsonObject sessionData) throws GeneralException {
+    public static SessionTokens createNewSession(@NotNull String userId, @NotNull JsonObject jwtPayload,
+                                                 @NotNull JsonObject sessionData) throws GeneralException {
         JsonObject body = new JsonObject();
         body.addProperty("userId", userId);
         body.add("userDataInJWT", jwtPayload);
@@ -75,9 +75,9 @@ public class SessionFunctions {
             body.addProperty("antiCsrfToken", antiCsrfToken);
         }
         JsonObject response = Querier.getInstance().sendPostRequest("/session/verify", body);
-        if (response.get("message").getAsString().equals("OK")) {
+        if (response.get("status").getAsString().equals("OK")) {
             return Utils.parseJsonResponse(response);
-        } else if (response.get("message").getAsString().equals("UNAUTHORISED")) {
+        } else if (response.get("status").getAsString().equals("UNAUTHORISED")) {
             throw new UnauthorisedException(response.get("message").getAsString());
         } else {
             throw new TryRefreshTokenException(response.get("message").getAsString());
@@ -218,8 +218,6 @@ public class SessionFunctions {
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         mapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
         String payloadJson = mapper.writeValueAsString(payloadClaims1);
-        System.out.println(payloadJson);
-        System.out.println("------------");
         Map<String, Object> decoded = mapper.readValue(payloadJson, Map.class);
         Map a = (Map<String, Object>)decoded.get("one");
         ((SomeClass[])(a.get("hi")))[0].print();
@@ -229,7 +227,6 @@ public class SessionFunctions {
         private int num = 123;
 
         public void print() {
-            System.out.println(this.num);
         }
     }
 * */

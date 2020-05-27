@@ -2,10 +2,14 @@ package example;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.javalin.http.Context;
+import io.javalin.http.Handler;
+import io.javalin.http.staticfiles.Location;
 import io.supertokens.javalin.*;
 import io.javalin.Javalin;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.exception.SuperTokensException;
+import org.jetbrains.annotations.NotNull;
 
 public class Main {
 
@@ -14,7 +18,9 @@ public class Main {
 
     public static void main(String[] args) throws GeneralException {
         SuperTokens.config("localhost:9000");
-        Javalin app = Javalin.create().start("0.0.0.0", 8080);
+        Javalin app = Javalin.create(config -> {
+            config.addStaticFiles(System.getProperty("user.dir") + "/public", Location.EXTERNAL);
+        }).start("0.0.0.0", 8080);
 
         app.options("*", ctx -> {
             ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
@@ -58,13 +64,22 @@ public class Main {
             ctx.result("");
         });
 
-        app.before("/testing", ctx -> {
-            String value = ctx.header("testing");
-            if (value != null) {
-               ctx.header("testing", value);
+        Handler testing = new Handler() {
+            @Override
+            public void handle(@NotNull Context ctx) throws Exception {
+                String value = ctx.header("testing");
+                if (value != null) {
+                    ctx.header("testing", value);
+                }
+                ctx.result("success");
             }
-            ctx.result("success");
-        });
+        };
+
+        app.get("/testing", testing);
+        app.post("/testing", testing);
+        app.delete("/testing", testing);
+        app.put("/testing", testing);
+
 
         app.before("/logout", SuperTokens.middleware());
         app.post("/logout", ctx -> {
@@ -103,7 +118,7 @@ public class Main {
 
         app.get("/getPackageVersion", ctx -> {
             ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-            ctx.result("0.0.4");
+            ctx.result("4.1.3");
         });
 
         app.get("/ping", ctx -> {
@@ -121,7 +136,7 @@ public class Main {
         app.get("/checkDeviceInfo", ctx -> {
             String sdkName = ctx.header("supertokens-sdk-name");
             String sdkVersion = ctx.header("supertokens-sdk-version");
-            ctx.result(sdkName.equals("website") && sdkVersion.equals("0.0.4") ? "true" : "false");
+            ctx.result(sdkName.equals("website") && sdkVersion.equals("4.1.3") ? "true" : "false");
         });
 
         app.post("/checkAllowCredentials", ctx -> {
@@ -142,7 +157,11 @@ public class Main {
                     ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
                     ctx.header("Access-Control-Allow-Credentials", "true");
                     ctx.status(440).result("");
-                }));
+                })
+                .onGeneralError(((exception, ctx) -> {
+                    exception.printStackTrace();
+                    ctx.status(500).result("Something went wrong");
+                })));
 
     }
 }

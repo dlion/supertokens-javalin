@@ -1,6 +1,10 @@
+(cd ../ && ./gradlew build)
+
 ./gradlew build
 
 ./gradlew copyJars
+
+rm -rf out
 
 mkdir out
 

@@ -1,2 +1,3 @@
 rootProject.name = 'javalin'
-
+include ':supertokens-javalin'
+project(':supertokens-javalin').projectDir = new File('../')

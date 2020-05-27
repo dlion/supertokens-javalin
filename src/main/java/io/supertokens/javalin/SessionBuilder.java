@@ -14,11 +14,11 @@ public class SessionBuilder {
     @NotNull
     private final String userId;
 
-    @Nullable
-    private JsonObject jwtPayload = null;
+    @NotNull
+    private JsonObject jwtPayload = new JsonObject();
 
-    @Nullable
-    private JsonObject sessionData = null;
+    @NotNull
+    private JsonObject sessionData = new JsonObject();
 
     SessionBuilder(@NotNull Context ctx, @NotNull String userId) {
         this.ctx = ctx;

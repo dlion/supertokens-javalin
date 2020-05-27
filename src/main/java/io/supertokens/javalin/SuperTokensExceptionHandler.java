@@ -91,6 +91,13 @@ public class SuperTokensExceptionHandler implements ExceptionHandler<SuperTokens
     }
 
     private void defaultGeneralExceptionHandler(@NotNull GeneralException exception, @NotNull Context ctx) {
-        ctx.status(500).result(exception.getCause().getMessage());  // TODO: does this get the actual exception?
+        Throwable cause = exception.getCause();
+        String message = "";
+        if (cause == null) {
+            message = exception.getMessage();
+        } else {
+            message = cause.getMessage();
+        }
+        ctx.status(500).result(message);  // TODO: does this get the actual exception?
     }
 }

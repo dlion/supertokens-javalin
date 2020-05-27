@@ -26,8 +26,8 @@ public class SuperTokens {
     }
 
     static Session createNewSession(@NotNull Context ctx, @NotNull  String userId,
-                                    @Nullable JsonObject jwtPayload,
-                                    @Nullable JsonObject sessionData) throws GeneralException {
+                                    @NotNull JsonObject jwtPayload,
+                                    @NotNull JsonObject sessionData) throws GeneralException {
         SessionTokens sessionTokens = SessionFunctions.createNewSession(userId, jwtPayload, sessionData);
 
         CookieAndHeaders.attachAccessTokenToCookie(ctx, sessionTokens.accessToken);

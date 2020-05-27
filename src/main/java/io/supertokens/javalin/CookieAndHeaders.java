@@ -25,7 +25,7 @@ class CookieAndHeaders {
         cookie.setDomain(domain);
         cookie.setSecure(secure);
         cookie.setHttpOnly(httpOnly);
-        int expiry = Math.max(0, (int)((expires - System.currentTimeMillis())/1000.0));
+        int expiry = Math.max(0, (int)Math.ceil(((expires - System.currentTimeMillis())/1000.0)));
         cookie.setMaxAge(expiry);
         cookie.setPath(path);
 
@@ -37,15 +37,15 @@ class CookieAndHeaders {
         } else {
             cookie.setComment(HttpCookie.SAME_SITE_STRICT_COMMENT);
         }
-        ctx.cookie(cookie);
+        ctx.res.addCookie(cookie);
     }
 
     private static void setHeader(Context ctx, String key, String value) {
-        String existing = getHeader(ctx, key);
+        String existing = ctx.res.getHeader(key);
         if (existing == null) {
-            ctx.header(key, value);
+            ctx.res.setHeader(key, value);
         } else {
-            ctx.header(key, existing + ", " + value);
+            ctx.res.setHeader(key, existing + ", " + value);
         }
     }
 

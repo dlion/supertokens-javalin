@@ -18,7 +18,9 @@ dependencies {
 
     compile "org.slf4j:slf4j-simple:1.8.0-beta4"
 
-    compile 'io.supertokens:javalin:0.0.4'
+    // compile 'io.supertokens:javalin:0.0.7'
+
+    compile project(":supertokens-javalin")
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
