@@ -1,6 +1,9 @@
 package io.supertokens.javalin.core;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.informationHolders.SessionTokens;
 import io.supertokens.javalin.core.informationHolders.TokenInfo;
 
@@ -119,6 +122,22 @@ public class Utils {
     }
     public static String convertFromBase64(String str) {
         return new String(Base64.getDecoder().decode(stringToBytes(str)));
+    }
+
+    public static Map<String, Object> jsonObjectToMap(JsonObject json) throws GeneralException {
+        try {
+            return new Gson().fromJson(json.toString(), new TypeToken<Map<String, Object>>(){}.getType());
+        } catch (Exception e) {
+            throw new GeneralException(e);
+        }
+    }
+
+    public static JsonObject mapToJsonObject(Map<String, Object>  map) throws GeneralException {
+        try {
+            return new Gson().toJsonTree(map).getAsJsonObject();
+        } catch (Exception e) {
+            throw new GeneralException(e);
+        }
     }
 
 }

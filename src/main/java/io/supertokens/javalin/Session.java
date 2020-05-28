@@ -1,7 +1,7 @@
 package io.supertokens.javalin;
 
-import com.google.gson.JsonObject;
 import io.javalin.http.Context;
+import io.supertokens.javalin.core.Utils;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.exception.UnauthorisedException;
 import io.supertokens.javalin.core.HandshakeInfo;
@@ -9,15 +9,17 @@ import io.supertokens.javalin.core.informationHolders.SessionTokens;
 import io.supertokens.javalin.core.SessionFunctions;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public class Session {
 
     private String accessToken;
     private String sessionHandle;
     private String userId;
-    private JsonObject userDataInJWT;
+    private Map<String, Object> userDataInJWT;
     private Context ctx;
 
-    Session(String accessToken, String sessionHandle, String userId, JsonObject userDataInJWT, Context ctx) {
+    Session(String accessToken, String sessionHandle, String userId, Map<String, Object>  userDataInJWT, Context ctx) {
         this.accessToken = accessToken;
         this.sessionHandle = sessionHandle;
         this.userId = userId;
@@ -40,9 +42,9 @@ public class Session {
         }
     }
 
-    public JsonObject getSessionData() throws GeneralException, UnauthorisedException {
+    public Map<String, Object>  getSessionData() throws GeneralException, UnauthorisedException {
         try {
-            return SessionFunctions.getSessionData(this.sessionHandle);
+            return Utils.jsonObjectToMap(SessionFunctions.getSessionData(this.sessionHandle));
         } catch (UnauthorisedException err) {
             HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
             CookieAndHeaders.clearSessionFromCookie(
@@ -58,9 +60,9 @@ public class Session {
         }
     }
 
-    public void updateSessionData(@NotNull JsonObject newSessionData) throws GeneralException, UnauthorisedException {
+    public void updateSessionData(@NotNull Map<String, Object>  newSessionData) throws GeneralException, UnauthorisedException {
         try {
-            SessionFunctions.updateSessionData(this.sessionHandle, newSessionData);
+            SessionFunctions.updateSessionData(this.sessionHandle, Utils.mapToJsonObject(newSessionData));
         } catch (UnauthorisedException err) {
             HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
             CookieAndHeaders.clearSessionFromCookie(
@@ -80,7 +82,7 @@ public class Session {
         return this.userId;
     }
 
-    public JsonObject getJWTPayload() {
+    public Map<String, Object>  getJWTPayload() {
         return this.userDataInJWT;
     }
 
@@ -92,10 +94,11 @@ public class Session {
         return this.accessToken;
     }
 
-    public void updateJWTPayload(@NotNull JsonObject newJWTPayload) throws UnauthorisedException, GeneralException {
+    public void updateJWTPayload(@NotNull Map<String, Object>  newJWTPayload) throws UnauthorisedException, GeneralException {
         try {
-            SessionTokens sessionTokens = SessionFunctions.regenerateSession(this.accessToken, newJWTPayload);
-            this.userDataInJWT = sessionTokens.userDataInJWT;
+            SessionTokens sessionTokens = SessionFunctions.regenerateSession(this.accessToken,
+                    Utils.mapToJsonObject(newJWTPayload));
+            this.userDataInJWT = Utils.jsonObjectToMap(sessionTokens.userDataInJWT);
             if (sessionTokens.accessToken != null) {
                 this.accessToken = sessionTokens.accessToken.token;
                 CookieAndHeaders.attachAccessTokenToCookie(this.ctx, sessionTokens.accessToken);

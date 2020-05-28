@@ -1,10 +1,12 @@
 package io.supertokens.javalin;
 
-import com.google.gson.JsonObject;
 import io.javalin.http.Context;
 import io.supertokens.javalin.core.exception.GeneralException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SessionBuilder {
 
@@ -15,21 +17,21 @@ public class SessionBuilder {
     private final String userId;
 
     @NotNull
-    private JsonObject jwtPayload = new JsonObject();
+    private Map<String, Object> jwtPayload = new HashMap<>();
 
     @NotNull
-    private JsonObject sessionData = new JsonObject();
+    private Map<String, Object>  sessionData = new HashMap<>();
 
     SessionBuilder(@NotNull Context ctx, @NotNull String userId) {
         this.ctx = ctx;
         this.userId = userId;
     }
 
-    public void withJWTPayload(@NotNull JsonObject jwtPayload) {
+    public void withJWTPayload(@NotNull Map<String, Object>  jwtPayload) {
         this.jwtPayload = jwtPayload;
     }
 
-    public void withSessionData(@NotNull JsonObject sessionData) {
+    public void withSessionData(@NotNull Map<String, Object>  sessionData) {
         this.sessionData = sessionData;
     }
 

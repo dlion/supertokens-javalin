@@ -1,8 +1,8 @@
 package io.supertokens.javalin;
 
-import com.google.gson.JsonObject;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import io.supertokens.javalin.core.Utils;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.exception.TokenTheftDetectedException;
 import io.supertokens.javalin.core.exception.TryRefreshTokenException;
@@ -11,7 +11,8 @@ import io.supertokens.javalin.core.HandshakeInfo;
 import io.supertokens.javalin.core.informationHolders.SessionTokens;
 import io.supertokens.javalin.core.SessionFunctions;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 public class SuperTokens {
 
@@ -26,9 +27,10 @@ public class SuperTokens {
     }
 
     static Session createNewSession(@NotNull Context ctx, @NotNull  String userId,
-                                    @NotNull JsonObject jwtPayload,
-                                    @NotNull JsonObject sessionData) throws GeneralException {
-        SessionTokens sessionTokens = SessionFunctions.createNewSession(userId, jwtPayload, sessionData);
+                                    @NotNull Map<String, Object> jwtPayload,
+                                    @NotNull Map<String, Object> sessionData) throws GeneralException {
+        SessionTokens sessionTokens = SessionFunctions.createNewSession(userId, Utils.mapToJsonObject(jwtPayload),
+                Utils.mapToJsonObject(sessionData));
 
         CookieAndHeaders.attachAccessTokenToCookie(ctx, sessionTokens.accessToken);
         CookieAndHeaders.attachRefreshTokenToCookie(ctx, sessionTokens.refreshToken);
@@ -37,7 +39,7 @@ public class SuperTokens {
             CookieAndHeaders.setAntiCsrfTokenInHeaders(ctx, sessionTokens.antiCsrfToken);
         }
         return new Session(sessionTokens.accessToken.token, sessionTokens.handle,
-                sessionTokens.userId, sessionTokens.userDataInJWT, ctx);
+                sessionTokens.userId, Utils.jsonObjectToMap(sessionTokens.userDataInJWT), ctx);
     }
 
     public static Session getSession(@NotNull Context ctx, boolean doAntiCSRFCheck)
@@ -56,7 +58,7 @@ public class SuperTokens {
                 CookieAndHeaders.attachAccessTokenToCookie(ctx, response.accessToken);
                 accessToken = response.accessToken.token;
             }
-            return new Session(accessToken, response.handle, response.userId, response.userDataInJWT, ctx);
+            return new Session(accessToken, response.handle, response.userId, Utils.jsonObjectToMap(response.userDataInJWT), ctx);
         } catch (UnauthorisedException e) {
             HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
             CookieAndHeaders.clearSessionFromCookie(
@@ -97,7 +99,7 @@ public class SuperTokens {
                 CookieAndHeaders.setAntiCsrfTokenInHeaders(ctx, sessionTokens.antiCsrfToken);
             }
             return new Session(sessionTokens.accessToken.token, sessionTokens.handle,
-                    sessionTokens.userId, sessionTokens.userDataInJWT, ctx);
+                    sessionTokens.userId, Utils.jsonObjectToMap(sessionTokens.userDataInJWT), ctx);
 
         } catch (UnauthorisedException | TokenTheftDetectedException e) {
             HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
@@ -129,28 +131,28 @@ public class SuperTokens {
         return SessionFunctions.revokeMultipleSessions(sessionHandles);
     }
 
-    public static JsonObject getSessionData(@NotNull String sessionHandle)
+    public static Map<String, Object> getSessionData(@NotNull String sessionHandle)
             throws GeneralException, UnauthorisedException {
-        return SessionFunctions.getSessionData(sessionHandle);
+        return Utils.jsonObjectToMap(SessionFunctions.getSessionData(sessionHandle));
     }
 
-    public static void updateSessionData(@NotNull String sessionHandle, @NotNull JsonObject sessionData)
+    public static void updateSessionData(@NotNull String sessionHandle, @NotNull Map<String, Object> sessionData)
             throws GeneralException, UnauthorisedException {
-        SessionFunctions.updateSessionData(sessionHandle, sessionData);
+        SessionFunctions.updateSessionData(sessionHandle, Utils.mapToJsonObject(sessionData));
     }
 
     public static void setRelevantHeadersForOptionsAPI(@NotNull Context ctx) {
         CookieAndHeaders.setOptionsAPIHeader(ctx);
     }
 
-    public static JsonObject getJWTPayload(@NotNull String sessionHandle) throws GeneralException,
+    public static Map<String, Object> getJWTPayload(@NotNull String sessionHandle) throws GeneralException,
             UnauthorisedException {
-        return SessionFunctions.getJWTPayload(sessionHandle);
+        return Utils.jsonObjectToMap(SessionFunctions.getJWTPayload(sessionHandle));
     }
 
-    public static void updateJWTPayload(@NotNull String sessionHandle, @NotNull JsonObject newJWTPayload)
+    public static void updateJWTPayload(@NotNull String sessionHandle, @NotNull Map<String, Object> newJWTPayload)
             throws GeneralException, UnauthorisedException {
-        SessionFunctions.updateJWTPayload(sessionHandle, newJWTPayload);
+        SessionFunctions.updateJWTPayload(sessionHandle, Utils.mapToJsonObject(newJWTPayload));
     }
 
     // -----------------------------------------
