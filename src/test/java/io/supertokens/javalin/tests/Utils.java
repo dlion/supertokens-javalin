@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 public class Utils {
 
     public static String getInstallationDir() { // without a /
-        return System.getProperty("installdir");
+        String result = System.getProperty("installdir");
+        return result == null || result.equals("") ? "../com-root" : result;
     }
 
     public static void executeCommand(String[] command, boolean waitFor) throws IOException, InterruptedException {
@@ -37,6 +38,9 @@ public class Utils {
     public static Map<String, String> extractInfoFromResponse(HttpURLConnection connection) {
         Map<String, String> result = new HashMap<>();
         connection.getHeaderFields().forEach((key, value) -> {
+            if (key == null) {
+                return;
+            }
             if (key.equals("anti-csrf")) {
                 result.put("antiCsrf", value.get(0));
             } else if (key.equals("id-refresh-token")) {

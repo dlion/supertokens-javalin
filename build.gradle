@@ -39,7 +39,13 @@ dependencies {
     compileOnly 'io.javalin:javalin:+'
 
     testCompile 'io.javalin:javalin:+'
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.1.0'
+
+    testCompile "org.slf4j:slf4j-simple:1.8.0-beta4"
 }
 
 test {
