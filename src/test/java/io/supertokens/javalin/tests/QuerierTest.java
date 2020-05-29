@@ -50,6 +50,21 @@ public class QuerierTest {
 
     @Test
     public void threeCoresAndRoundRobin() throws Exception {
-        // TODO:
+        Utils.startST();
+//        Utils.startST("localhost", 8081);
+//        Utils.startST("localhost", 8082);
+//        SuperTokens.config("localhost:8080;localhost:8081;localhost:8082");
+
+        Querier q = Querier.getInstance();
+        assert(q.sendGetRequest("/hello", new HashMap<>()).equals("Hello\n"));
+//        assert.equal(await q.sendDeleteRequest("/hello", {}), "Hello\n");
+//        let hostsAlive = q.getHostsAliveForTesting();
+//        assert.equal(hostsAlive.size, 3);
+//        assert.equal(await q.sendGetRequest("/hello", {}), "Hello\n"); // this will be the 4th API call
+//        hostsAlive = q.getHostsAliveForTesting();
+//        assert.equal(hostsAlive.size, 3);
+//        assert.equal(hostsAlive.has("localhost:8080"), true);
+//        assert.equal(hostsAlive.has("localhost:8081"), true);
+//        assert.equal(hostsAlive.has("localhost:8082"), true);
     }
 }

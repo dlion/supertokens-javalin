@@ -95,7 +95,7 @@ public class Querier {
         }
     }
 
-    public JsonObject sendPostRequest(String path, JsonObject body) throws GeneralException {
+    public <T> T sendPostRequest(String path, JsonObject body) throws GeneralException {
         if (path.equals("/session") || path.equals("/session/verify") ||
                 path.equals("/session/refresh") || path.equals("/handshake")) {
             DeviceInfo.Device[] devices = DeviceInfo.getInstance().getFrontendSDKs();
@@ -118,26 +118,26 @@ public class Querier {
         return sendRequestHelper(path, url -> HttpRequest.sendJsonPOSTRequest(url, body, getAPIVersion()), this.hosts.size());
     }
 
-    public JsonObject sendDeleteRequest(String path, JsonObject body) throws GeneralException {
+    public <T> T sendDeleteRequest(String path, JsonObject body) throws GeneralException {
         return sendRequestHelper(path, url -> HttpRequest.sendJsonDELETERequest(url, body, getAPIVersion()), this.hosts.size());
     }
 
-    public JsonObject sendGetRequest(String path, Map<String, String> params) throws GeneralException {
+    public <T> T sendGetRequest(String path, Map<String, String> params) throws GeneralException {
         return sendRequestHelper(path, url -> HttpRequest.sendGETRequest(url, params, getAPIVersion()), this.hosts.size());
     }
 
-    public JsonObject sendPutRequest(String path, JsonObject body) throws GeneralException {
+    public <T> T sendPutRequest(String path, JsonObject body) throws GeneralException {
         return sendRequestHelper(path, url -> HttpRequest.sendJsonPUTRequest(url, body, getAPIVersion()), this.hosts.size());
     }
 
-    private JsonObject sendRequestHelper(String path, ActualRequest request, int numberOfTries) throws GeneralException {
+    private <T> T sendRequestHelper(String path, ActualRequest request, int numberOfTries) throws GeneralException {
         if (numberOfTries == 0) {
             throw new GeneralException("No SuperTokens core available to query");
         }
         STInstance currentHost = this.hosts.get(this.lastTriedIndex);
         this.lastTriedIndex = (this.lastTriedIndex + 1) % this.hosts.size();
         try {
-            return request.handle("http://" + currentHost.host + ":" + currentHost.port + path);
+            return (T) request.handle("http://" + currentHost.host + ":" + currentHost.port + path);
         } catch (Exception e) {
             if (e.getMessage().contains("Connection refused")) {
                 return sendRequestHelper(path, request, numberOfTries - 1);
@@ -147,7 +147,7 @@ public class Querier {
     }
 
     @FunctionalInterface
-    public interface ActualRequest {
-        JsonObject handle(@NotNull String url) throws Exception;
+    public interface ActualRequest<T> {
+        T handle(@NotNull String url) throws Exception;
     }
 }

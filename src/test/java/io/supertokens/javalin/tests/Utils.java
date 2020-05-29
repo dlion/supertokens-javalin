@@ -126,16 +126,14 @@ public class Utils {
         Querier.reset();
     }
 
-    public static String startST(String host, Integer port) throws Exception {
-        if (host == null) {
-            host = "localhost";
-        }
-        if (port == null) {
-            port = 8080;
-        }
+    static String startST() throws Exception {
+        return startST("localhost", 8080);
+    }
+
+    static String startST(String host, Integer port) throws Exception {
         String installationPath = getInstallationDir();
         List<String> pidsBefore = getListOfPids();
-        executeCommand(new String[]{"java", "-Djava.security.egd=file:/dev/urandom", "-classpath", "\"./core/*:./plugin-interface/*\"", "io.supertokens.Main", "./", "DEV", "host=" +
+        executeCommand(new String[]{"java", "-Djava.security.egd=file:/dev/urandom", "-classpath \"./core/*:./plugin-interface/*\"", "io.supertokens.Main", "./", "DEV", "host=" +
                                 host, "port=" + port}, false);
         long startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < 10000) {
