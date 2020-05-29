@@ -5,6 +5,7 @@ import io.supertokens.javalin.Constants;
 import io.supertokens.javalin.ProcessState;
 import io.supertokens.javalin.SuperTokens;
 import io.supertokens.javalin.core.exception.GeneralException;
+import io.supertokens.javalin.core.querier.HttpRequestMocking;
 import io.supertokens.javalin.core.querier.Querier;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,6 +29,7 @@ public class QuerierTest {
         Utils.killAllST();
         Utils.setupST();
         ProcessState.reset();
+        HttpRequestMocking.reset();
         Constants.IS_TESTING = true;
     }
 
@@ -41,7 +43,7 @@ public class QuerierTest {
         SuperTokens.config("localhost:8080;localhost:8081");
         try {
             Querier q = Querier.getInstance();
-            q.sendGetRequest("/", new HashMap<>());
+            q.sendGetRequest("", "/", new HashMap<>());
             throw new Exception("should fail!");
         } catch(GeneralException e) {
             if (!e.getMessage().equals("No SuperTokens core available to query")) {
@@ -57,11 +59,11 @@ public class QuerierTest {
         Utils.startST("localhost", 8082);
         SuperTokens.config("localhost:8080;localhost:8081;localhost:8082");
         Querier q = Querier.getInstance();
-        assert(q.sendGetRequest("/hello", new HashMap<>()).equals("Hello"));
-        assert(q.sendDeleteRequest("/hello", new JsonObject()).equals("Hello"));
+        assert(q.sendGetRequest("", "/hello", new HashMap<>()).equals("Hello"));
+        assert(q.sendDeleteRequest("", "/hello", new JsonObject()).equals("Hello"));
         Set<String> hostsAlive = q.getHostsAliveForTesting();
         assert(hostsAlive.size() == 3);
-        assert(q.sendGetRequest("/hello", new HashMap<>()).equals("Hello")); // this will be the 4th API call
+        assert(q.sendGetRequest("", "/hello", new HashMap<>()).equals("Hello")); // this will be the 4th API call
         hostsAlive = q.getHostsAliveForTesting();
         assert(hostsAlive.size() == 3);
         assert(hostsAlive.contains("localhost:8080"));
@@ -75,11 +77,11 @@ public class QuerierTest {
         Utils.startST("localhost", 8082);
         SuperTokens.config("localhost:8080;localhost:8081;localhost:8082");
         Querier q = Querier.getInstance();
-        assert(q.sendGetRequest("/hello", new HashMap<>()).equals("Hello"));
-        assert(q.sendDeleteRequest("/hello", new JsonObject()).equals("Hello"));
+        assert(q.sendGetRequest("", "/hello", new HashMap<>()).equals("Hello"));
+        assert(q.sendDeleteRequest("", "/hello", new JsonObject()).equals("Hello"));
         Set<String> hostsAlive = q.getHostsAliveForTesting();
         assert(hostsAlive.size() == 2);
-        assert(q.sendGetRequest("/hello", new HashMap<>()).equals("Hello")); // this will be the 4th API call
+        assert(q.sendGetRequest("", "/hello", new HashMap<>()).equals("Hello")); // this will be the 4th API call
         hostsAlive = q.getHostsAliveForTesting();
         assert(hostsAlive.size() == 2);
         assert(hostsAlive.contains("localhost:8080"));

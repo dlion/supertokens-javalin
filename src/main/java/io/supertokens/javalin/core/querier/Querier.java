@@ -81,7 +81,7 @@ public class Querier {
                 return apiVersion;
             }
             JsonObject response = sendRequestHelper("/apiversion",
-                    url -> HttpRequest.sendGETRequest(url, null, null),
+                    url -> HttpRequest.sendGETRequest("apiversion", url, null, null),
                     this.hosts.size());
             assert response != null;
             JsonArray cdiSupportedByServerJson = response.getAsJsonArray("versions");
@@ -100,7 +100,7 @@ public class Querier {
         }
     }
 
-    public <T> T sendPostRequest(String path, JsonObject body) throws GeneralException {
+    public <T> T sendPostRequest(String requestID, String path, JsonObject body) throws GeneralException {
         if (path.equals("/session") || path.equals("/session/verify") ||
                 path.equals("/session/refresh") || path.equals("/handshake")) {
             DeviceInfo.Device[] devices = DeviceInfo.getInstance().getFrontendSDKs();
@@ -120,19 +120,19 @@ public class Querier {
             body.add("frontendSDK", frontendSDK);
             body.add("driver", driver);
         }
-        return sendRequestHelper(path, url -> HttpRequest.sendJsonPOSTRequest(url, body, getAPIVersion()), this.hosts.size());
+        return sendRequestHelper(path, url -> HttpRequest.sendJsonPOSTRequest(requestID, url, body, getAPIVersion()), this.hosts.size());
     }
 
-    public <T> T sendDeleteRequest(String path, JsonObject body) throws GeneralException {
-        return sendRequestHelper(path, url -> HttpRequest.sendJsonDELETERequest(url, body, getAPIVersion()), this.hosts.size());
+    public <T> T sendDeleteRequest(String requestID, String path, JsonObject body) throws GeneralException {
+        return sendRequestHelper(path, url -> HttpRequest.sendJsonDELETERequest(requestID, url, body, getAPIVersion()), this.hosts.size());
     }
 
-    public <T> T sendGetRequest(String path, Map<String, String> params) throws GeneralException {
-        return sendRequestHelper(path, url -> HttpRequest.sendGETRequest(url, params, getAPIVersion()), this.hosts.size());
+    public <T> T sendGetRequest(String requestID, String path, Map<String, String> params) throws GeneralException {
+        return sendRequestHelper(path, url -> HttpRequest.sendGETRequest(requestID, url, params, getAPIVersion()), this.hosts.size());
     }
 
-    public <T> T sendPutRequest(String path, JsonObject body) throws GeneralException {
-        return sendRequestHelper(path, url -> HttpRequest.sendJsonPUTRequest(url, body, getAPIVersion()), this.hosts.size());
+    public <T> T sendPutRequest(String requestID, String path, JsonObject body) throws GeneralException {
+        return sendRequestHelper(path, url -> HttpRequest.sendJsonPUTRequest(requestID, url, body, getAPIVersion()), this.hosts.size());
     }
 
     private <T> T sendRequestHelper(String path, ActualRequest request, int numberOfTries) throws GeneralException {

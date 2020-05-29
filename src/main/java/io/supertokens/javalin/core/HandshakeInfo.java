@@ -30,7 +30,7 @@ public class HandshakeInfo {
         if (HandshakeInfo.instance == null) {
             synchronized (HandshakeInfo.class) {
                 if (instance == null) {
-                    JsonObject response = Querier.getInstance().sendPostRequest("/handshake", new JsonObject());
+                    JsonObject response = Querier.getInstance().sendPostRequest("handshake", "/handshake", new JsonObject());
                     HandshakeInfo.instance = new HandshakeInfo(
                             response.get("jwtSigningPublicKey").getAsString(),
                             response.get("cookieDomain").getAsString(),

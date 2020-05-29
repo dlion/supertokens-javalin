@@ -2,9 +2,11 @@ package io.supertokens.javalin.core.querier;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import io.supertokens.javalin.Constants;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +14,17 @@ import java.util.Map;
 
 public class HttpRequest {
     private static final int STATUS_CODE_ERROR_THRESHOLD = 400;
+
+    private static URL getURL(String requestID, String url) throws MalformedURLException {
+        URL obj = new URL(url);
+        if (Constants.IS_TESTING) {
+            URL mock = HttpRequestMocking.getInstance().getMockURL(requestID, url);
+            if (mock != null) {
+                obj = mock;
+            }
+        }
+        return obj;
+    }
 
     private static boolean isJsonValid(String jsonInString) {
         JsonElement el = null;
@@ -31,7 +44,7 @@ public class HttpRequest {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T sendGETRequest(String url, Map<String, String> params, String version)
+    public static <T> T sendGETRequest(String requestID, String url, Map<String, String> params, String version)
             throws IOException, HttpResponseException {
         StringBuilder paramBuilder = new StringBuilder();
 
@@ -47,7 +60,7 @@ public class HttpRequest {
             paramsStr = paramsStr.substring(0, paramsStr.length() - 1);
             url = url + "?" + paramsStr;
         }
-        URL obj = new URL(url);
+        URL obj = getURL(requestID, url);
         InputStream inputStream = null;
         HttpURLConnection con = null;
 
@@ -93,9 +106,9 @@ public class HttpRequest {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T sendJsonRequest(String url, JsonElement requestBody, String version, String method)
+    private static <T> T sendJsonRequest(String requestID, String url, JsonElement requestBody, String version, String method)
             throws IOException, HttpResponseException {
-        URL obj = new URL(url);
+        URL obj = getURL(requestID, url);;
         InputStream inputStream = null;
         HttpURLConnection con = null;
         try {
@@ -150,19 +163,19 @@ public class HttpRequest {
         }
     }
 
-    public static <T> T sendJsonPOSTRequest(String url, JsonElement requestBody, String version)
+    public static <T> T sendJsonPOSTRequest(String requestID, String url, JsonElement requestBody, String version)
             throws IOException, HttpResponseException {
-        return sendJsonRequest(url, requestBody, version, "POST");
+        return sendJsonRequest(requestID, url, requestBody, version, "POST");
     }
 
-    public static <T> T sendJsonPUTRequest(String url, JsonElement requestBody, String version)
+    public static <T> T sendJsonPUTRequest(String requestID, String url, JsonElement requestBody, String version)
             throws IOException, HttpResponseException {
-        return sendJsonRequest(url, requestBody, version, "PUT");
+        return sendJsonRequest(requestID, url, requestBody, version, "PUT");
     }
 
-    public static <T> T sendJsonDELETERequest(String url, JsonElement requestBody, String version)
+    public static <T> T sendJsonDELETERequest(String requestID, String url, JsonElement requestBody, String version)
             throws IOException, HttpResponseException {
-        return sendJsonRequest(url, requestBody, version,
+        return sendJsonRequest(requestID, url, requestBody, version,
                 "DELETE");
     }
 }
