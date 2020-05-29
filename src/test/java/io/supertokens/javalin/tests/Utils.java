@@ -48,13 +48,25 @@ public class Utils {
             } else if (key.equalsIgnoreCase("set-cookie")) {
                 for (String i : value) {
                     if (i.split(";")[0].split("=")[0].equals("sAccessToken")) {
-                        result.put("accessToken", i.split(";")[0].split("=")[1]);
+                        try {
+                            result.put("accessToken", i.split(";")[0].split("=")[1]);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            result.put("accessToken", "");
+                        }
                         result.put("accessTokenExpiry", i.split(";")[3].split("=")[1]);
                     } else if (i.split(";")[0].split("=")[0].equals("sRefreshToken")) {
-                        result.put("refreshToken", i.split(";")[0].split("=")[1]);
+                        try {
+                            result.put("refreshToken", i.split(";")[0].split("=")[1]);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            result.put("refreshToken", "");
+                        }
                         result.put("refreshTokenExpiry",i.split(";")[3].split("=")[1]);
                     } else {
-                        result.put("idRefreshTokenFromCookie", i.split(";")[0].split("=")[1]);
+                        try {
+                            result.put("idRefreshTokenFromCookie", i.split(";")[0].split("=")[1]);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            result.put("idRefreshTokenFromCookie", "");
+                        }
                         result.put("idRefreshTokenExpiry", i.split(";")[3].split("=")[1]);
                     }
                 }

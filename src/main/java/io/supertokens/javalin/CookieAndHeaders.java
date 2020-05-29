@@ -6,6 +6,9 @@ import io.supertokens.javalin.core.informationHolders.TokenInfo;
 import org.eclipse.jetty.http.HttpCookie;
 
 import javax.servlet.http.Cookie;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 class CookieAndHeaders {
 
@@ -21,7 +24,7 @@ class CookieAndHeaders {
 
     private static void setCookie(Context ctx, String name, String value, String domain, boolean secure,
                            boolean httpOnly, long expires, String path, String sameSite) {
-        Cookie cookie = new Cookie(name, value);
+        Cookie cookie = new Cookie(name, URLEncoder.encode(value, StandardCharsets.UTF_8));
         cookie.setDomain(domain);
         cookie.setSecure(secure);
         cookie.setHttpOnly(httpOnly);
@@ -50,7 +53,11 @@ class CookieAndHeaders {
     }
 
     private static String getCookieValue(Context ctx, String key) {
-        return ctx.cookie(key);
+        String value = ctx.cookie(key);
+        if (value != null) {
+            return URLDecoder.decode(value, StandardCharsets.UTF_8);
+        }
+        return null;
     }
 
     private static String getHeader(Context ctx, String key) {

@@ -34,51 +34,39 @@ public class HttpRequest {
         URL obj = new URL(url);
         HttpURLConnection con = null;
 
-        try {
-            con = (HttpURLConnection) obj.openConnection();
-            con.setConnectTimeout(10000);
-            con.setReadTimeout(10000);
-            if (headers != null) {
-                headers.forEach(con::setRequestProperty);
-            }
-
-            con.getResponseCode();
-            return con;
-        } finally {
-            if (con != null) {
-                con.disconnect();
-            }
+        con = (HttpURLConnection) obj.openConnection();
+        con.setConnectTimeout(10000);
+        con.setReadTimeout(10000);
+        if (headers != null) {
+            headers.forEach(con::setRequestProperty);
         }
+
+        con.getResponseCode();
+        return con;
     }
 
     private static HttpURLConnection sendJsonRequest(String url, JsonElement requestBody, Map<String, String> headers, String method)
             throws IOException {
         URL obj = new URL(url);
         HttpURLConnection con = null;
-        try {
-            con = (HttpURLConnection) obj.openConnection();
-            con.setRequestMethod(method);
-            con.setConnectTimeout(10000);
-            con.setReadTimeout(10000);
-            con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            if (headers != null) {
-                headers.forEach(con::setRequestProperty);
-            }
+        con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod(method);
+        con.setConnectTimeout(10000);
+        con.setReadTimeout(10000);
+        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        if (headers != null) {
+            headers.forEach(con::setRequestProperty);
+        }
 
-            if (requestBody != null) {
-                con.setDoOutput(true);
-                try (OutputStream os = con.getOutputStream()) {
-                    byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
-                    os.write(input, 0, input.length);
-                }
-            }
-            con.getResponseCode();
-            return con;
-        } finally {
-            if (con != null) {
-                con.disconnect();
+        if (requestBody != null) {
+            con.setDoOutput(true);
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
             }
         }
+        con.getResponseCode();
+        return con;
     }
 
     public static HttpURLConnection sendJsonPOSTRequest(String url, JsonElement requestBody, Map<String, String> headers)

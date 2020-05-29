@@ -135,6 +135,7 @@ public class Querier {
         return sendRequestHelper(path, url -> HttpRequest.sendJsonPUTRequest(requestID, url, body, getAPIVersion()), this.hosts.size());
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T sendRequestHelper(String path, ActualRequest request, int numberOfTries) throws GeneralException {
         if (numberOfTries == 0) {
             throw new GeneralException("No SuperTokens core available to query");
