@@ -9,9 +9,7 @@ import io.supertokens.javalin.core.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Querier {
 
@@ -23,9 +21,16 @@ public class Querier {
 
     private int lastTriedIndex = 0;
 
+    private Set<String> hostsAliveForTesting = new HashSet<>();
+
     @TestOnly
     public static void reset() {
         instance = null;
+    }
+
+    @TestOnly
+    public Set<String> getHostsAliveForTesting() {
+        return hostsAliveForTesting;
     }
 
     private Querier(String config) throws GeneralException {
@@ -137,7 +142,11 @@ public class Querier {
         STInstance currentHost = this.hosts.get(this.lastTriedIndex);
         this.lastTriedIndex = (this.lastTriedIndex + 1) % this.hosts.size();
         try {
-            return (T) request.handle("http://" + currentHost.host + ":" + currentHost.port + path);
+            T response = (T) request.handle("http://" + currentHost.host + ":" + currentHost.port + path);
+            if (Constants.IS_TESTING) {
+                this.hostsAliveForTesting.add(currentHost.host + ":" + currentHost.port);
+            }
+            return response;
         } catch (Exception e) {
             if (e.getMessage().contains("Connection refused")) {
                 return sendRequestHelper(path, request, numberOfTries - 1);

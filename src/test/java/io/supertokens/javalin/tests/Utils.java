@@ -19,7 +19,6 @@ public class Utils {
     public static void executeCommand(String[] command, boolean waitFor) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(new File(getInstallationDir()));
-        pb.inheritIO();
         Process p = pb.start();
         if (waitFor) {
             p.waitFor();
@@ -133,8 +132,8 @@ public class Utils {
     static String startST(String host, Integer port) throws Exception {
         String installationPath = getInstallationDir();
         List<String> pidsBefore = getListOfPids();
-        executeCommand(new String[]{"java", "-Djava.security.egd=file:/dev/urandom", "-classpath \"./core/*:./plugin-interface/*\"", "io.supertokens.Main", "./", "DEV", "host=" +
-                                host, "port=" + port}, false);
+        executeCommand(new String[]{"bash", "-c", "java -Djava.security.egd=file:/dev/urandom -classpath \"./core/*:./plugin-interface/*\" io.supertokens.Main ./ DEV host=" +
+                                host + " port=" + port}, false);
         long startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < 10000) {
             List<String> pidsAfter = getListOfPids();
