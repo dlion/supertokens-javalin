@@ -3,6 +3,7 @@ package io.supertokens.javalin.core;
 import com.google.gson.JsonObject;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.querier.Querier;
+import org.jetbrains.annotations.TestOnly;
 
 public class HandshakeInfo {
 
@@ -19,6 +20,11 @@ public class HandshakeInfo {
     public  String cookieSameSite;
     public  String idRefreshTokenPath;
     public  int sessionExpiredStatusCode;
+
+    @TestOnly
+    public static void reset() {
+        instance = null;
+    }
 
     public static HandshakeInfo getInstance() throws GeneralException {
         if (HandshakeInfo.instance == null) {

@@ -7,6 +7,7 @@ import io.supertokens.javalin.core.DeviceInfo;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.Utils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +23,25 @@ public class Querier {
 
     private int lastTriedIndex = 0;
 
+    @TestOnly
+    public static void reset() {
+        instance = null;
+    }
+
     private Querier(String config) throws GeneralException {
         try {
             this.hosts = new ArrayList<>();
             String[] splitted = config.split(";");
             for (String instance : splitted) {
+                if (instance.equals("")) {
+                    continue;
+                }
                 String host = instance.split(":")[0];
                 int port = Integer.parseInt(instance.split(":")[1]);
                 this.hosts.add(new STInstance(host, port));
             }
         } catch (Exception e) {
-            throw new GeneralException(e);
+            throw new GeneralException("Please provide the instance addresses in the correct format: Example: <host1>:<port1>;<host2>:<port2>");
         }
     }
 

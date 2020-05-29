@@ -1,5 +1,7 @@
 package io.supertokens.javalin.core;
 
+import org.jetbrains.annotations.TestOnly;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +9,11 @@ public class DeviceInfo {
 
     private static DeviceInfo instance = null;
     private List<Device> frontendSDK = new ArrayList<>();
+
+    @TestOnly
+    public static void reset() {
+        instance = null;
+    }
 
     private DeviceInfo() {}
 

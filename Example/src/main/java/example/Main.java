@@ -61,6 +61,7 @@ public class Main {
         app.post("/beforeeach", ctx -> {
             noOfTimesRefreshCalledDuringTest = 0;
             noOfTimesGetSessionCalledDuringTest = 0;
+            // TODO: reset handshake info; deviceinfo; and querier; - why is it passing if I do not do that?
             ctx.result("");
         });
 
