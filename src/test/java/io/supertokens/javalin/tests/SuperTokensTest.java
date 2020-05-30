@@ -338,6 +338,7 @@ public class SuperTokensTest {
     public void sessionRevoking() throws Exception {
         Utils.startST();
         SuperTokens.config("localhost:8080");
+        SessionFunctions.revokeAllSessionsForUser("someUniqueUserId");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -709,7 +710,57 @@ public class SuperTokensTest {
             assert (response.get("idRefreshTokenFromCookie") != null);
             assert (response.get("idRefreshTokenFromHeader") != null);
             assert (response.get("refreshToken") != null);
-            
+
+        } finally {
+            if (app != null) {
+                app.stop();
+            }
+        }
+    }
+
+    @Test
+    public void testAntiCsrfDisabled() throws Exception {
+        Utils.setKeyValueInConfig("enable_anti_csrf", "false");
+        Utils.startST();
+        SuperTokens.config("localhost:8080");
+        Javalin app = null;
+        try {
+            app = Javalin.create().start("localhost", 8081);
+
+            app.post("/create", ctx -> {
+                SuperTokens.newSession(ctx, "").create();
+                ctx.result("");
+            });
+
+            app.post("/session/verify", ctx -> {
+                SuperTokens.getSession(ctx, true);
+                ctx.result("");
+            });
+
+            app.post("/session/verifyAntiCsrfFalse", ctx -> {
+                SuperTokens.getSession(ctx, false);
+                ctx.result("");
+            });
+
+            Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
+                    new JsonObject(), null));
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/verify", new JsonObject(), headers);
+                assert (con.getResponseCode() == 200);
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/verifyAntiCsrfFalse", new JsonObject(), headers);
+                assert (con.getResponseCode() == 200);
+            }
+
         } finally {
             if (app != null) {
                 app.stop();
