@@ -19,3 +19,4 @@ node_modules
 apiPassword
 releasePassword
 /out
+/.idea/GitScope.xml

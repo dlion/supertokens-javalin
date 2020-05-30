@@ -3,6 +3,7 @@ package io.supertokens.javalin.core;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.supertokens.javalin.ProcessState;
 import io.supertokens.javalin.core.accessToken.AccessToken;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.exception.TokenTheftDetectedException;
@@ -65,6 +66,8 @@ public class SessionFunctions {
                 }
             }
         } catch (TryRefreshTokenException ignored) {}
+
+        ProcessState.getInstance().addState(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY, null);
 
         // send request below.
 

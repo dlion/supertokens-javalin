@@ -47,7 +47,7 @@ public class ProcessState {
     }
 
     public enum PROCESS_STATE {
-
+        CALLING_SERVICE_IN_VERIFY
     }
 
     public static class EventAndException {
