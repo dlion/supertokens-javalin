@@ -8,6 +8,7 @@ import io.supertokens.javalin.Session;
 import io.supertokens.javalin.SuperTokens;
 import io.supertokens.javalin.core.SessionFunctions;
 import io.supertokens.javalin.core.exception.TokenTheftDetectedException;
+import io.supertokens.javalin.core.exception.UnauthorisedException;
 import io.supertokens.javalin.core.querier.HttpRequestMocking;
 import io.supertokens.javalin.tests.httprequest.HttpRequest;
 import org.junit.AfterClass;
@@ -422,6 +423,298 @@ public class SuperTokensTest {
     }
 
 
-    
+    @Test
+    public void testManipulatingSessionData() throws Exception {
+        Utils.startST();
+        SuperTokens.config("localhost:8080");
+        Javalin app = null;
+        try {
+            app = Javalin.create().start("localhost", 8081);
+
+            app.post("/create", ctx -> {
+                SuperTokens.newSession(ctx, "").create();
+                ctx.result("");
+            });
+
+            app.post("/updateSessionData", ctx -> {
+               Session s = SuperTokens.getSession(ctx, true);
+               Map<String, Object> data = new HashMap<>();
+               data.put("key", "value");
+               s.updateSessionData(data);
+               ctx.result("");
+            });
+
+            app.post("/getSessionData", ctx -> {
+                Session s = SuperTokens.getSession(ctx, true);
+                Map<String, Object> data = s.getSessionData();
+                ctx.result((String)data.get("key"));
+            });
+
+            app.post("/updateSessionData2", ctx -> {
+                Session s = SuperTokens.getSession(ctx, true);
+                Map<String, Object> data = new HashMap<>();
+                data.put("key", "value2");
+                s.updateSessionData(data);
+                ctx.result("");
+            });
+
+            app.post("/updateSessionDataInvalidSessionHandle", ctx -> {
+                try {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("key", "value3");
+                    SuperTokens.updateSessionData("InvalidHandle", data);
+                    ctx.result("{\"success\": false}");
+                } catch (UnauthorisedException e) {
+                    ctx.result("{\"success\": true}");
+                } catch (Exception e) {
+                    ctx.result("{\"success\": false}");
+                }
+            });
+
+            Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
+                    new JsonObject(), null));
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpRequest.sendJsonPOSTRequest("http://localhost:8081/updateSessionData", new JsonObject(), headers);
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/getSessionData", new JsonObject(), headers);
+                InputStream inputStream = con.getInputStream();
+                StringBuilder responseStr = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseStr.append(inputLine);
+                    }
+                }
+                assert (responseStr.toString().equals("value"));
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpRequest.sendJsonPOSTRequest("http://localhost:8081/updateSessionData2", new JsonObject(), headers);
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/getSessionData", new JsonObject(), headers);
+                InputStream inputStream = con.getInputStream();
+                StringBuilder responseStr = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseStr.append(inputLine);
+                    }
+                }
+                assert (responseStr.toString().equals("value2"));
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/updateSessionDataInvalidSessionHandle",
+                        new JsonObject(), headers);
+                InputStream inputStream = con.getInputStream();
+                StringBuilder responseStr = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseStr.append(inputLine);
+                    }
+                }
+                assert (responseStr.toString().equals("{\"success\": true}"));
+            }
+
+        } finally {
+            if (app != null) {
+                app.stop();
+            }
+        }
+    }
+
+
+    @Test
+    public void testManipulatingJwtData() throws Exception {
+        Utils.startST();
+        SuperTokens.config("localhost:8080");
+        Javalin app = null;
+        try {
+            app = Javalin.create().start("localhost", 8081);
+
+            app.post("/create", ctx -> {
+                SuperTokens.newSession(ctx, "").create();
+                ctx.result("");
+            });
+
+            app.post("/updateJWTPayload", ctx -> {
+                Session s = SuperTokens.getSession(ctx, true);
+                String accessTokenBefore = s.getAccessToken();
+                Map<String, Object> data = new HashMap<>();
+                data.put("key", "value");
+                s.updateJWTPayload(data);
+                String accessTokenAfter = s.getAccessToken();
+
+                ctx.status(accessTokenBefore.equals(accessTokenAfter) ? 500 : 200).result("");
+            });
+
+            app.post("/getJWTPayload", ctx -> {
+                Session s = SuperTokens.getSession(ctx, true);
+                Map<String, Object> data = s.getJWTPayload();
+                ctx.result((String)data.get("key"));
+            });
+
+            app.post("/updateJWTPayload2", ctx -> {
+                Session s = SuperTokens.getSession(ctx, true);
+                Map<String, Object> data = new HashMap<>();
+                data.put("key", "value2");
+                s.updateJWTPayload(data);
+                ctx.result("");
+            });
+
+            app.post("/updateJWTPayloadInvalidSessionHandle", ctx -> {
+                try {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("key", "value3");
+                    SuperTokens.updateJWTPayload("InvalidHandle", data);
+                    ctx.result("{\"success\": false}");
+                } catch (UnauthorisedException e) {
+                    ctx.result("{\"success\": true}");
+                } catch (Exception e) {
+                    ctx.result("{\"success\": false}");
+                }
+            });
+
+            Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
+                    new JsonObject(), null));
+
+            Map<String, String> response2;
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                response2 = Utils.extractInfoFromResponse(
+                        HttpRequest.sendJsonPOSTRequest("http://localhost:8081/updateJWTPayload",
+                                new JsonObject(), headers));
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response2.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/getJWTPayload", new JsonObject(), headers);
+                InputStream inputStream = con.getInputStream();
+                StringBuilder responseStr = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseStr.append(inputLine);
+                    }
+                }
+                assert (responseStr.toString().equals("value"));
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response2.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                response2 = Utils.extractInfoFromResponse(
+                        HttpRequest.sendJsonPOSTRequest("http://localhost:8081/updateJWTPayload2",
+                                new JsonObject(), headers));
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response2.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/getJWTPayload", new JsonObject(), headers);
+                InputStream inputStream = con.getInputStream();
+                StringBuilder responseStr = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseStr.append(inputLine);
+                    }
+                }
+                assert (responseStr.toString().equals("value2"));
+            }
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/updateJWTPayloadInvalidSessionHandle",
+                        new JsonObject(), headers);
+                InputStream inputStream = con.getInputStream();
+                StringBuilder responseStr = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseStr.append(inputLine);
+                    }
+                }
+                assert (responseStr.toString().equals("{\"success\": true}"));
+            }
+
+        } finally {
+            if (app != null) {
+                app.stop();
+            }
+        }
+    }
+
+    @Test
+    public void testAppendingToExistingHeader() throws Exception {
+        Utils.startST();
+        SuperTokens.config("localhost:8080");
+        Javalin app = null;
+        try {
+            app = Javalin.create().start("localhost", 8081);
+
+            app.post("/create", ctx -> {
+                ctx.header("testHeader", "testValue");
+                ctx.header("Access-Control-Expose-Headers", "customValue");
+                SuperTokens.newSession(ctx, "").create();
+                ctx.result("");
+            });
+
+            HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create", new JsonObject(), null);
+            assert(con.getHeaderField("testheader").equals("testValue"));
+            assert(con.getHeaderField("access-control-expose-headers").equals("customValue, id-refresh-token, anti-csrf"));
+
+            Map<String, String> response = Utils.extractInfoFromResponse(con);
+            assert (response.get("accessToken") != null);
+            assert (response.get("antiCsrf") != null);
+            assert (response.get("idRefreshTokenFromCookie") != null);
+            assert (response.get("idRefreshTokenFromHeader") != null);
+            assert (response.get("refreshToken") != null);
+            
+        } finally {
+            if (app != null) {
+                app.stop();
+            }
+        }
+    }
 
 }
