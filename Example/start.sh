@@ -1,6 +1,6 @@
-(cd ../ && ./gradlew build)
+(cd ../ && ./gradlew build -x test)
 
-./gradlew build
+./gradlew build -x test
 
 ./gradlew copyJars
 
