@@ -109,7 +109,7 @@ public class Querier {
                     .getLargestVersionFromIntersection(cdiSupportedByServer, Constants.CDI_SUPPORTED);
             if (supportedVersion == null) {
                 throw new GeneralException(
-                        "The running SuperTokens core version is not compatible with this NodeJS SDK. Please visit https://supertokens.io/docs/community/compatibility to find the right versions");
+                        "The running SuperTokens core version is not compatible with this Javalin SDK. Please visit https://supertokens.io/docs/community/compatibility to find the right versions");
             }
             this.apiVersion = supportedVersion;
             return supportedVersion;
