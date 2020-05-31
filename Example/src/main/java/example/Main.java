@@ -7,6 +7,7 @@ import io.javalin.http.Handler;
 import io.javalin.http.staticfiles.Location;
 import io.supertokens.javalin.*;
 import io.javalin.Javalin;
+import io.supertokens.javalin.core.HandshakeInfo;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.exception.SuperTokensException;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +62,7 @@ public class Main {
         app.post("/beforeeach", ctx -> {
             noOfTimesRefreshCalledDuringTest = 0;
             noOfTimesGetSessionCalledDuringTest = 0;
-            // TODO: reset handshake info; deviceinfo; and querier; - why is it passing if I do not do that?
+            HandshakeInfo.reset();
             ctx.result("");
         });
 
