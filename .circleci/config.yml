@@ -2,13 +2,13 @@ version: 2
 jobs:
   publish:
     docker:
-      - image: rishabhpoddar/supertokens_android_sdk_testing
+      - image: rishabhpoddar/supertokens_node_driver_testing
     steps:
       - checkout
       - run: ./gradlew clean build -x test bintrayUpload -PbintrayUser=supertokens -PbintrayKey=$BINTRAY_KEY -PdryRun=false
   test:
     docker: 
-      - image: rishabhpoddar/supertokens_android_sdk_testing
+      - image: rishabhpoddar/supertokens_node_driver_testing
     environment:
       JVM_OPTS: -Xmx3200m
     steps:
