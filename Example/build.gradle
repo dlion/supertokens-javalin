@@ -34,6 +34,8 @@ dependencies {
 
     compile "org.slf4j:slf4j-simple:1.8.0-beta4"
 
+    compile "com.fasterxml.jackson.core:jackson-databind:2.10.1"
+
     // compile 'io.supertokens:javalin:0.0.7'
 
     compile project(":supertokens-javalin")
