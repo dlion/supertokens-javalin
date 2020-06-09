@@ -138,11 +138,6 @@ public class Main {
             ctx.result("" + noOfTimesGetSessionCalledDuringTest);
         });
 
-        app.get("/getPackageVersion", ctx -> {
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-            ctx.result("4.1.4");
-        });
-
         app.get("/ping", ctx -> {
             ctx.result("");
         });
@@ -157,8 +152,8 @@ public class Main {
 
         app.get("/checkDeviceInfo", ctx -> {
             String sdkName = ctx.header("supertokens-sdk-name");
-            String sdkVersion = ctx.header("supertokens-sdk-version");
-            ctx.result(sdkName.equals("website") && sdkVersion.equals("4.1.4") ? "true" : "false");
+            Boolean sdkVersionCheck = ctx.header("supertokens-sdk-version") != null;
+            ctx.result(sdkName.equals("website") && sdkVersionCheck ? "true" : "false");
         });
 
         app.post("/checkAllowCredentials", ctx -> {
