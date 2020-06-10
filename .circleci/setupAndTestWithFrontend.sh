@@ -78,7 +78,7 @@ cd ../project/Example
 ./start.sh &
 pid=$!
 sleep 35
-cd ../../../supertokens-website/test/server
+cd ../../supertokens-website/test/server
 npm i -d
 npm i git+https://github.com:supertokens/supertokens-node.git#$3
 cd ../../
