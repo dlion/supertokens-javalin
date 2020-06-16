@@ -31,7 +31,7 @@ public class Querier {
 
     private static Querier instance;
 
-    private List<STInstance> hosts;
+    private List<String> hosts;
 
     private String apiVersion = null;
 
@@ -49,26 +49,23 @@ public class Querier {
         return hostsAliveForTesting;
     }
 
-    private Querier(String config) throws GeneralException {
-        try {
-            this.hosts = new ArrayList<>();
-            String[] splitted = config.split(";");
-            for (String instance : splitted) {
-                if (instance.equals("")) {
-                    continue;
-                }
-                String host = instance.split(":")[0];
-                int port = Integer.parseInt(instance.split(":")[1]);
-                this.hosts.add(new STInstance(host, port));
+    private Querier(String config) {
+        this.hosts = new ArrayList<>();
+        String[] splitted = config.split(";");
+        for (String instance : splitted) {
+            if (instance.equals("")) {
+                continue;
             }
-        } catch (Exception e) {
-            throw new GeneralException("Please provide the instance addresses in the correct format: Example: <host1>:<port1>;<host2>:<port2>");
+            if (instance.charAt(instance.length() - 1) == '/') {
+                instance = instance.substring(0, instance.length() - 1);
+            }
+            this.hosts.add(instance);
         }
     }
 
     private Querier() {
         this.hosts = new ArrayList<>();
-        this.hosts.add(new STInstance("localhost", 3567));
+        this.hosts.add("http://localhost:3567");
     }
 
     public static Querier getInstance() {
@@ -82,7 +79,7 @@ public class Querier {
         return instance;
     }
 
-    public synchronized static void initInstance(String config) throws GeneralException {
+    public synchronized static void initInstance(String config) {
         if (instance == null) {
             instance = new Querier(config);
         }
@@ -156,12 +153,12 @@ public class Querier {
         if (numberOfTries == 0) {
             throw new GeneralException("No SuperTokens core available to query");
         }
-        STInstance currentHost = this.hosts.get(this.lastTriedIndex);
+        String currentHost = this.hosts.get(this.lastTriedIndex);
         this.lastTriedIndex = (this.lastTriedIndex + 1) % this.hosts.size();
         try {
-            T response = (T) request.handle("http://" + currentHost.host + ":" + currentHost.port + path);
+            T response = (T) request.handle(currentHost + path);
             if (Constants.IS_TESTING) {
-                this.hostsAliveForTesting.add(currentHost.host + ":" + currentHost.port);
+                this.hostsAliveForTesting.add(currentHost);
             }
             return response;
         } catch (Exception e) {

@@ -36,7 +36,7 @@ import java.util.HashMap;
 
 public class SessionFunctions {
 
-    public static void config(String config) throws GeneralException {
+    public static void config(String config) {
         Querier.initInstance(config);
     }
 
@@ -53,11 +53,8 @@ public class SessionFunctions {
         return Utils.parseJsonResponse(response);
     }
 
-    public static SessionTokens getSession(String accessToken, String antiCsrfToken, boolean doAntiCsrfCheck, String idRefreshToken) throws
+    public static SessionTokens getSession(String accessToken, String antiCsrfToken, boolean doAntiCsrfCheck) throws
             UnauthorisedException, TryRefreshTokenException, GeneralException {
-        if (idRefreshToken == null) {
-            throw new UnauthorisedException("idRefreshToken missing");
-        }
 
         // try to verify within SDK
         HandshakeInfo handshakeInfo = HandshakeInfo.getInstance();

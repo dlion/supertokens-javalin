@@ -34,8 +34,8 @@ public class SuperTokens {
 
     private static final String CONTEXT_ATTRIBUTE_KEY = "SUPERTOKENS_SESSION";
 
-    public static void config(String config) throws GeneralException {
-        SessionFunctions.config(config);
+    public static Config config() {
+        return Config.getInstance();
     }
 
     public static SessionBuilder newSession(@NotNull Context ctx, @NotNull  String userId) {
@@ -62,14 +62,27 @@ public class SuperTokens {
             throws TryRefreshTokenException, UnauthorisedException, GeneralException {
         CookieAndHeaders.saveFrontendInfoFromRequest(ctx);
 
+        String idRefreshToken = CookieAndHeaders.getIdRefreshTokenFromCookie(ctx);
+        if (idRefreshToken == null) {
+            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
+            CookieAndHeaders.clearSessionFromCookie(
+                    ctx,
+                    handShakeInfo.cookieDomain,
+                    handShakeInfo.cookieSecure,
+                    handShakeInfo.accessTokenPath,
+                    handShakeInfo.refreshTokenPath,
+                    handShakeInfo.idRefreshTokenPath,
+                    handShakeInfo.cookieSameSite);
+            throw new UnauthorisedException("idRefreshToken missing");
+        }
+
         String accessToken = CookieAndHeaders.getAccessTokenFromCookie(ctx);
         if (accessToken == null) {
             throw new TryRefreshTokenException("access token missing in cookies");
         }
         try {
             String antiCsrfToken = CookieAndHeaders.getAntiCSRFTokenFromHeaders(ctx);
-            String idRefreshToken = CookieAndHeaders.getIdRefreshTokenFromCookie(ctx);
-            SessionTokens response = SessionFunctions.getSession(accessToken, antiCsrfToken, doAntiCSRFCheck, idRefreshToken);
+            SessionTokens response = SessionFunctions.getSession(accessToken, antiCsrfToken, doAntiCSRFCheck);
             if (response.accessToken != null) {
                 CookieAndHeaders.attachAccessTokenToCookie(ctx, response.accessToken);
                 accessToken = response.accessToken.token;
