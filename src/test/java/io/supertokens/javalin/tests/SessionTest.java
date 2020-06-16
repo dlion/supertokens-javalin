@@ -52,13 +52,14 @@ public class SessionTest {
     @Test
     public void tokenTheftDetection() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         SessionTokens response = SessionFunctions.createNewSession("", new JsonObject(), new JsonObject());
 
         SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token);
 
-        SessionFunctions.getSession(response2.accessToken.token, response2.antiCsrfToken, true, response2.idRefreshToken.token);
+        SessionFunctions.getSession(response2.accessToken.token, response2.antiCsrfToken, true);
 
         try {
             SessionFunctions.refreshSession(response.refreshToken.token);
@@ -69,7 +70,8 @@ public class SessionTest {
     @Test
     public void testBasicSessionUse() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         SessionTokens response = SessionFunctions.createNewSession("", new JsonObject(), new JsonObject());
         assert (response.accessToken.token != null);
@@ -78,7 +80,7 @@ public class SessionTest {
         assert (response.handle != null);
         assert (response.antiCsrfToken != null);
 
-        SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, true, response.idRefreshToken.token);
+        SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, true);
         assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) == null);
 
         SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token);
@@ -88,7 +90,7 @@ public class SessionTest {
         assert (response2.handle != null);
         assert (response2.antiCsrfToken != null);
 
-        SessionTokens response3 = SessionFunctions.getSession(response2.accessToken.token, response2.antiCsrfToken, true, response2.idRefreshToken.token);
+        SessionTokens response3 = SessionFunctions.getSession(response2.accessToken.token, response2.antiCsrfToken, true);
         assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) != null);
         assert(response3.handle != null);
         assert (response3.accessToken != null);
@@ -98,8 +100,7 @@ public class SessionTest {
 
         ProcessState.reset();
 
-        SessionTokens response4 = SessionFunctions.getSession(response3.accessToken.token, response2.antiCsrfToken, true,
-                response.idRefreshToken.token);
+        SessionTokens response4 = SessionFunctions.getSession(response3.accessToken.token, response2.antiCsrfToken, true);
         assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) == null);
         assert (response4.handle != null);
         assert (response4.accessToken == null);
@@ -113,26 +114,28 @@ public class SessionTest {
     @Test
     public void testSessionVerifyWithAntiCSRF() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         SessionTokens response = SessionFunctions.createNewSession("", new JsonObject(), new JsonObject());
 
-        SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, true, response.idRefreshToken.token);
+        SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, true);
 
-        SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, false, response.idRefreshToken.token);
+        SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, false);
     }
 
     @Test
     public void testSessionVerifyWithoutAntiCSRF() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         SessionTokens response = SessionFunctions.createNewSession("", new JsonObject(), new JsonObject());
 
-        SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, false, response.idRefreshToken.token);
+        SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, false);
 
         try {
-            SessionFunctions.getSession(response.accessToken.token, null, true, response.idRefreshToken.token);
+            SessionFunctions.getSession(response.accessToken.token, null, true);
             throw new Exception("should not come here");
         } catch (TryRefreshTokenException ignored) { }
     }
@@ -140,7 +143,8 @@ public class SessionTest {
     @Test
     public void testRevokingOfSessions() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         SessionFunctions.revokeAllSessionsForUser("someUniqueUserId");
 
@@ -167,7 +171,8 @@ public class SessionTest {
     @Test
     public void testManipulationOfSessionData() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         SessionTokens response = SessionFunctions
                 .createNewSession("someUniqueUserId", new JsonObject(), new JsonObject());
@@ -205,7 +210,8 @@ public class SessionTest {
     @Test
     public void testManipulationOfJWTPayload() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         SessionTokens response = SessionFunctions
                 .createNewSession("someUniqueUserId", new JsonObject(), new JsonObject());
@@ -244,13 +250,14 @@ public class SessionTest {
     public void testNoAntiCSRFRequiredIfDisabledFromCore() throws Exception {
         Utils.setKeyValueInConfig("enable_anti_csrf", "false");
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         SessionTokens response = SessionFunctions.createNewSession("", new JsonObject(), new JsonObject());
 
-        SessionFunctions.getSession(response.accessToken.token, null, false, response.idRefreshToken.token);
+        SessionFunctions.getSession(response.accessToken.token, null, false);
 
-        SessionFunctions.getSession(response.accessToken.token, null, true, response.idRefreshToken.token);
+        SessionFunctions.getSession(response.accessToken.token, null, true);
     }
 
 }

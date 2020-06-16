@@ -62,7 +62,8 @@ public class DeviceDriverInfoTest extends Mockito {
     @Test
     public void driverInfoCheckWithoutFrontendSDK() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080;");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         final HttpsURLConnection mockCon = mock(HttpsURLConnection.class);
         boolean success = false;
@@ -108,7 +109,8 @@ public class DeviceDriverInfoTest extends Mockito {
     @Test
     public void frontendSDKTest() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080;");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -306,7 +308,7 @@ public class DeviceDriverInfoTest extends Mockito {
             // get session check.
             {
                 try {
-                    SessionFunctions.getSession("", "", false, "");
+                    SessionFunctions.getSession("", "", false);
                 } catch (Exception ignored) {}
                 JsonObject outputJson = new JsonParser().parse(verifySessionOutput.toString()).getAsJsonObject();
 

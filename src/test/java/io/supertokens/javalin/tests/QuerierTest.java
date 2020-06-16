@@ -56,7 +56,8 @@ public class QuerierTest {
 
     @Test
     public void coreNotAvailable() throws Exception {
-        SuperTokens.config("localhost:8080;localhost:8081");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080;http://localhost:8081");
         try {
             Querier q = Querier.getInstance();
             q.sendGetRequest("", "/", new HashMap<>());
@@ -73,7 +74,8 @@ public class QuerierTest {
         Utils.startST();
         Utils.startST("localhost", 8081);
         Utils.startST("localhost", 8082);
-        SuperTokens.config("localhost:8080;localhost:8081;localhost:8082");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080;http://localhost:8081;http://localhost:8082");
         Querier q = Querier.getInstance();
         assert(q.sendGetRequest("", "/hello", new HashMap<>()).equals("Hello"));
         assert(q.sendDeleteRequest("", "/hello", new JsonObject()).equals("Hello"));
@@ -82,16 +84,17 @@ public class QuerierTest {
         assert(q.sendGetRequest("", "/hello", new HashMap<>()).equals("Hello")); // this will be the 4th API call
         hostsAlive = q.getHostsAliveForTesting();
         assert(hostsAlive.size() == 3);
-        assert(hostsAlive.contains("localhost:8080"));
-        assert(hostsAlive.contains("localhost:8081"));
-        assert(hostsAlive.contains("localhost:8082"));
+        assert(hostsAlive.contains("http://localhost:8080"));
+        assert(hostsAlive.contains("http://localhost:8081"));
+        assert(hostsAlive.contains("http://localhost:8082"));
     }
 
     @Test
     public void threeCoresOneDeadRoundRobin() throws Exception {
         Utils.startST();
         Utils.startST("localhost", 8082);
-        SuperTokens.config("localhost:8080;localhost:8081;localhost:8082");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080;http://localhost:8081;http://localhost:8082");
         Querier q = Querier.getInstance();
         assert(q.sendGetRequest("", "/hello", new HashMap<>()).equals("Hello"));
         assert(q.sendDeleteRequest("", "/hello", new JsonObject()).equals("Hello"));
@@ -100,8 +103,8 @@ public class QuerierTest {
         assert(q.sendGetRequest("", "/hello", new HashMap<>()).equals("Hello")); // this will be the 4th API call
         hostsAlive = q.getHostsAliveForTesting();
         assert(hostsAlive.size() == 2);
-        assert(hostsAlive.contains("localhost:8080"));
-        assert(!hostsAlive.contains("localhost:8081"));
-        assert(hostsAlive.contains("localhost:8082"));
+        assert(hostsAlive.contains("http://localhost:8080"));
+        assert(!hostsAlive.contains("http://localhost:8081"));
+        assert(hostsAlive.contains("http://localhost:8082"));
     }
 }

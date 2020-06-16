@@ -59,7 +59,8 @@ public class SuperTokensTest {
     @Test
     public void tokenTheftDetection() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -143,7 +144,8 @@ public class SuperTokensTest {
     @Test
     public void basicUsage() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -252,7 +254,8 @@ public class SuperTokensTest {
     @Test
     public void sessionVerifyWithAntiCsrf() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -304,7 +307,8 @@ public class SuperTokensTest {
     @Test
     public void sessionVerifyWithoutAntiCsrf() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -353,7 +357,8 @@ public class SuperTokensTest {
     @Test
     public void sessionRevoking() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         SessionFunctions.revokeAllSessionsForUser("someUniqueUserId");
         Javalin app = null;
         try {
@@ -443,7 +448,8 @@ public class SuperTokensTest {
     @Test
     public void testManipulatingSessionData() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -570,7 +576,8 @@ public class SuperTokensTest {
     @Test
     public void testManipulatingJwtData() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -704,7 +711,8 @@ public class SuperTokensTest {
     @Test
     public void testAppendingToExistingHeader() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);
@@ -738,7 +746,8 @@ public class SuperTokensTest {
     public void testAntiCsrfDisabled() throws Exception {
         Utils.setKeyValueInConfig("enable_anti_csrf", "false");
         Utils.startST();
-        SuperTokens.config("localhost:8080");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
         Javalin app = null;
         try {
             app = Javalin.create().start("localhost", 8081);

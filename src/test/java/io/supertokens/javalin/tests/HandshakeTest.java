@@ -47,7 +47,8 @@ public class HandshakeTest {
     @Test
     public void driverInfoCheckWithoutFrontendSDK() throws Exception {
         Utils.startST();
-        SuperTokens.config("localhost:8080;");
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
 
         HandshakeInfo info = HandshakeInfo.getInstance();
         assert(info.accessTokenPath.equals("/"));
