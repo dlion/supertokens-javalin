@@ -52,7 +52,7 @@ public class HandshakeTest {
 
         HandshakeInfo info = HandshakeInfo.getInstance();
         assert(info.accessTokenPath.equals("/"));
-        assert(info.cookieDomain.equals("supertokens.io"));
+        assert(info.cookieDomain.equals("supertokens.io") || info.cookieDomain.equals("localhost") );
         assert(!info.cookieSecure);
         assert(info.refreshTokenPath.equals("/refresh"));
         assert(info.enableAntiCsrf);

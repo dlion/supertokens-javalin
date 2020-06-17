@@ -1,16 +1,21 @@
 package example;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.staticfiles.Location;
+import io.javalin.plugin.json.JavalinJson;
 import io.supertokens.javalin.*;
 import io.javalin.Javalin;
 import io.supertokens.javalin.core.HandshakeInfo;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.exception.SuperTokensException;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class Main {
 
@@ -56,7 +61,22 @@ public class Main {
             String userId = SuperTokens.getFromContext(ctx).getUserId();
             ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
             ctx.header("Access-Control-Allow-Credentials", "true");
-            ctx.result("success");
+            ctx.result(userId);
+        });
+
+        app.before("/update-jwt", SuperTokens.middleware());
+        app.get("/update-jwt", ctx -> {
+            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Credentials", "true");
+            ctx.json(SuperTokens.getFromContext(ctx).getJWTPayload());
+        });
+
+        app.post("/update-jwt", ctx -> {
+            JsonObject body = new JsonParser().parse(ctx.body()).getAsJsonObject();
+            SuperTokens.getFromContext(ctx).updateJWTPayload(new Gson().fromJson(body.toString(), new TypeToken<Map<String, Object>>(){}.getType()));
+            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Credentials", "true");
+            ctx.json(SuperTokens.getFromContext(ctx).getJWTPayload());
         });
 
         app.post("/beforeeach", ctx -> {
@@ -118,11 +138,6 @@ public class Main {
             ctx.result("" + noOfTimesGetSessionCalledDuringTest);
         });
 
-        app.get("/getPackageVersion", ctx -> {
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
-            ctx.result("4.1.3");
-        });
-
         app.get("/ping", ctx -> {
             ctx.result("");
         });
@@ -137,8 +152,8 @@ public class Main {
 
         app.get("/checkDeviceInfo", ctx -> {
             String sdkName = ctx.header("supertokens-sdk-name");
-            String sdkVersion = ctx.header("supertokens-sdk-version");
-            ctx.result(sdkName.equals("website") && sdkVersion.equals("4.1.3") ? "true" : "false");
+            Boolean sdkVersionCheck = ctx.header("supertokens-sdk-version") != null;
+            ctx.result(sdkName.equals("website") && sdkVersionCheck ? "true" : "false");
         });
 
         app.post("/checkAllowCredentials", ctx -> {
