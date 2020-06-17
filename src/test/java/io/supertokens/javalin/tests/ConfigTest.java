@@ -30,7 +30,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigTest {
@@ -102,7 +107,6 @@ public class ConfigTest {
                 .withAccessTokenPath("/customAccessTokenPath")
                 .withRefreshApiPath("/customRefreshPath")
                 .withCookieDomain("custom.domain");
-
         Javalin app = null;
         try{
             app = Javalin.create().start("localhost", 8081);
@@ -112,6 +116,11 @@ public class ConfigTest {
                 ctx.result("");
             });
 
+            app.before("/customRefreshPath", SuperTokens.middleware());
+            app.post("/customRefreshPath",ctx -> {
+                ctx.result("success");
+            });
+
             Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
                     new JsonObject(), null));
 
@@ -119,6 +128,25 @@ public class ConfigTest {
             assert (response.get("refreshTokenPath").equals("/customRefreshPath"));
             assert (response.get("accessTokenDomain").equals("custom.domain"));
             assert (response.get("refreshTokenDomain").equals("custom.domain"));
+
+            Map<String, String> response2;
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/customRefreshPath",
+                        new JsonObject(), headers);
+                response2 = Utils.extractInfoFromResponse(con);
+                InputStream inputStream = con.getInputStream();
+                StringBuilder responseStr = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseStr.append(inputLine);
+                    }
+                }
+                assert (responseStr.toString().equals("success"));
+                assert (!response.get("accessToken").equals(response2.get("accessToken")));
+            }
         } finally {
             if (app != null) {
                 app.stop();
