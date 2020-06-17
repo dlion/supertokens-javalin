@@ -101,7 +101,7 @@ public class ConfigTest {
                 .withHosts("http://localhost:8080")
                 .withAccessTokenPath("/customAccessTokenPath")
                 .withRefreshApiPath("/customRefreshPath")
-                .withCookieDomain("customDomain");
+                .withCookieDomain("custom.domain");
 
         Javalin app = null;
         try{
@@ -115,10 +115,10 @@ public class ConfigTest {
             Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
                     new JsonObject(), null));
 
-            assert (response.get("accessTokenPath") == "/customAccessTokenPath");
-            assert (response.get("refreshTokenPath") == "/customRefreshPath");
-            assert (response.get("accessTokenDomain") == "customDomain");
-            assert (response.get("refreshTokenDomain") == "customDomain");
+            assert (response.get("accessTokenPath").equals("/customAccessTokenPath"));
+            assert (response.get("refreshTokenPath").equals("/customRefreshPath"));
+            assert (response.get("accessTokenDomain").equals("custom.domain"));
+            assert (response.get("refreshTokenDomain").equals("custom.domain"));
         } finally {
             if (app != null) {
                 app.stop();
