@@ -203,10 +203,14 @@ public class SuperTokens {
             }
             String path = ctx.path().split("\\?")[0];
             HandshakeInfo handshakeInfo = HandshakeInfo.getInstance();
+            String refreshTokenPath = handshakeInfo.refreshTokenPath;
+            if (Config.getInstance().refreshApiPath != null) {
+                refreshTokenPath = Config.getInstance().refreshApiPath;
+            }
             if (
-                    (handshakeInfo.refreshTokenPath.equals(path)) ||
-                    (handshakeInfo.refreshTokenPath.equals(path + "/")) ||
-                    ((handshakeInfo.refreshTokenPath + "/").equals(path))
+                    (refreshTokenPath.equals(path)) ||
+                    (refreshTokenPath.equals(path + "/")) ||
+                    ((refreshTokenPath + "/").equals(path))
                     &&
                     ctx.req.getMethod().equalsIgnoreCase("post")
             ) {
