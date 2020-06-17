@@ -66,15 +66,24 @@ public class Utils {
                     if (i.split(";")[0].split("=")[0].equals("sAccessToken")) {
                         try {
                             result.put("accessToken", i.split(";")[0].split("=")[1]);
+                            result.put("accessTokenPath",i.split(";")[1].split("=")[1]);
+                            result.put("accessTokenDomain",i.split(";")[2].split("=")[1]);
                         } catch (ArrayIndexOutOfBoundsException e) {
                             result.put("accessToken", "");
+                            result.put("accessTokenPath", "");
+                            result.put("accessTokenDomain", "");
                         }
                         result.put("accessTokenExpiry", i.split(";")[3].split("=")[1]);
                     } else if (i.split(";")[0].split("=")[0].equals("sRefreshToken")) {
                         try {
                             result.put("refreshToken", i.split(";")[0].split("=")[1]);
+                            result.put("refreshTokenPath",i.split(";")[1].split("=")[1]);
+                            result.put("refreshTokenDomain",i.split(";")[2].split("=")[1]);
+
                         } catch (ArrayIndexOutOfBoundsException e) {
                             result.put("refreshToken", "");
+                            result.put("refreshTokenPath", "");
+                            result.put("refreshTokenDomain", "");
                         }
                         result.put("refreshTokenExpiry",i.split(";")[3].split("=")[1]);
                     } else {

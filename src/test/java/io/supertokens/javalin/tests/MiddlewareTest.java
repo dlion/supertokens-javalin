@@ -57,6 +57,120 @@ public class MiddlewareTest {
     }
 
     @Test
+    public void testMiddlewareWithTrySupertokensURL() throws Exception{
+        Utils.startST("localhost",3567);
+        SuperTokens.config()
+                .withHosts("https://try.supertokens.io");
+
+        Javalin app = null;
+        try{
+            app = Javalin.create().start("localhost", 8081);
+
+            app.post("/create", ctx -> {
+                SuperTokens.newSession(ctx, "testing-userId").create();
+                ctx.result("");
+            });
+
+            app.before("/verify", SuperTokens.middleware());
+            app.get("/verify", ctx -> {
+                SuperTokens.getSession(ctx,true);
+                ctx.result("{\"message\": true}");
+            });
+
+            app.before("/refresh", SuperTokens.middleware());
+            app.post("/refresh", ctx -> {
+                ctx.result("{\"message\": true}");
+            });
+
+            app.before("/logout", SuperTokens.middleware());
+            app.post("/logout", ctx -> {
+                Session session = SuperTokens.getFromContext(ctx);
+                session.revokeSession();
+                ctx.result("{\"message\": true}");
+            });
+
+            Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
+                    new JsonObject(), null));
+            assert (response.get("accessToken") != null);
+            assert (response.get("antiCsrf") != null);
+            assert (response.get("idRefreshTokenFromCookie") != null);
+            assert (response.get("idRefreshTokenFromHeader") != null);
+            assert (response.get("refreshToken") != null);
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response.get("accessToken") + ";sIdRefreshToken=" +
+                        response.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
+                HttpRequest.sendJsonPOSTRequest("http://localhost:8081/verify", new JsonObject(), headers);
+                assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) == null);
+            }
+
+            Map<String, String> response2;
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+                HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/refresh",
+                        new JsonObject(), headers);
+                response2 = Utils.extractInfoFromResponse(con);
+            }
+            assert (response2.get("accessToken") != null);
+            assert (response2.get("antiCsrf") != null);
+            assert (response2.get("idRefreshTokenFromCookie") != null);
+            assert (response2.get("idRefreshTokenFromHeader") != null);
+            assert (response2.get("refreshToken") != null);
+
+            Map<String, String> response3;
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response2.get("accessToken") + ";sIdRefreshToken=" +
+                        response2.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response2.get("antiCsrf"));
+                response3 = Utils.extractInfoFromResponse(
+                        HttpRequest.sendJsonPOSTRequest("http://localhost:8081/verify", new JsonObject(), headers));
+                assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) != null);
+            }
+
+            ProcessState.reset();
+
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response3.get("accessToken") + ";sIdRefreshToken=" +
+                        response3.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response2.get("antiCsrf"));
+                Utils.extractInfoFromResponse(
+                        HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/verify", new JsonObject(), headers));
+                assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) == null);
+            }
+
+            Map<String, String> response4;
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Cookie", "sAccessToken=" + response3.get("accessToken") + ";sIdRefreshToken=" +
+                        response3.get("idRefreshTokenFromCookie"));
+                headers.put("anti-csrf", response2.get("antiCsrf"));
+                response4 = Utils.extractInfoFromResponse(
+                        HttpRequest.sendJsonPOSTRequest("http://localhost:8081/logout", new JsonObject(), headers));
+            }
+
+            assert(response4.get("antiCsrf") == null);
+            assert(response4.get("accessToken").equals(""));
+            assert(response4.get("refreshToken").equals(""));
+            assert(response4.get("idRefreshTokenFromHeader").equals("remove"));
+            assert(response4.get("idRefreshTokenFromCookie").equals(""));
+            assert(response4.get("accessTokenExpiry").equals("Thu, 01-Jan-1970 00:00:00 GMT"));
+            assert(response4.get("idRefreshTokenExpiry").equals("Thu, 01-Jan-1970 00:00:00 GMT"));
+            assert(response4.get("refreshTokenExpiry").equals("Thu, 01-Jan-1970 00:00:00 GMT"));
+
+
+        } finally {
+            if (app != null) {
+                app.stop();
+            }
+        }
+    }
+
+    @Test
     public void testMiddlware() throws Exception {
         Utils.startST("localhost", 3567);
 
