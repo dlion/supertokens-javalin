@@ -51,6 +51,15 @@ class CookieAndHeaders {
         if (Config.getInstance().cookieSecure != null) {
             secure = Config.getInstance().cookieSecure;
         }
+        if (name.equals(accessTokenCookieKey) && Config.getInstance().accessTokenPath != null) {
+            path = Config.getInstance().accessTokenPath;
+        }
+        if (name.equals(idRefreshTokenCookieKey) && Config.getInstance().accessTokenPath != null) {
+            path = Config.getInstance().accessTokenPath;
+        }
+        if (name.equals(refreshTokenCookieKey) && Config.getInstance().refreshApiPath != null) {
+            path = Config.getInstance().refreshApiPath;
+        }
 
         Cookie cookie = new Cookie(name, URLEncoder.encode(value, StandardCharsets.UTF_8));
         cookie.setDomain(domain);
@@ -111,17 +120,11 @@ class CookieAndHeaders {
     }
 
     static void attachAccessTokenToCookie(Context ctx, TokenInfo token) {
-        if (Config.getInstance().accessTokenPath != null) {
-            token.cookiePath = Config.getInstance().accessTokenPath;
-        }
         setCookie(ctx, accessTokenCookieKey, token.token, token.domain, token.cookieSecure, true,
                 token.expiry, token.cookiePath, token.sameSite);
     }
 
     static void attachRefreshTokenToCookie(Context ctx, TokenInfo token) {
-        if (Config.getInstance().refreshApiPath != null) {
-            token.cookiePath = Config.getInstance().refreshApiPath;
-        }
         setCookie(ctx, refreshTokenCookieKey, token.token, token.domain, token.cookieSecure, true,
                 token.expiry, token.cookiePath, token.sameSite);
     }
@@ -148,9 +151,6 @@ class CookieAndHeaders {
     }
 
     static void setIdRefreshTokenInHeaderAndCookie(Context ctx, TokenInfo token) {
-        if (Config.getInstance().accessTokenPath != null) {
-            token.cookiePath = Config.getInstance().accessTokenPath;
-        }
         setHeader(ctx, idRefreshTokenHeaderKey, token.token + ";" + token.expiry);
         setHeader(ctx, "Access-Control-Expose-Headers", idRefreshTokenHeaderKey);
 

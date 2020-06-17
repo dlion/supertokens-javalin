@@ -23,7 +23,7 @@ public class Main {
     static int noOfTimesRefreshCalledDuringTest = 0;
 
     public static void main(String[] args) throws GeneralException {
-        SuperTokens.config("localhost:9000");
+        SuperTokens.config().withHosts("http://localhost:9000");
         Javalin app = Javalin.create(config -> {
             config.addStaticFiles(System.getProperty("user.dir") + "/public", Location.EXTERNAL);
         }).start("0.0.0.0", 8080);
