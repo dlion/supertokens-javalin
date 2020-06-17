@@ -40,6 +40,18 @@ class CookieAndHeaders {
 
     private static void setCookie(Context ctx, String name, String value, String domain, boolean secure,
                            boolean httpOnly, long expires, String path, String sameSite) {
+        String configSameSite = Config.getInstance().cookieSameSite;
+        if (configSameSite != null && (configSameSite.equals("none") || configSameSite.equals("lax") ||
+                configSameSite.equals("strict"))) {
+            sameSite = configSameSite;
+        }
+        if (Config.getInstance().cookieDomain != null) {
+            domain = Config.getInstance().cookieDomain;
+        }
+        if (Config.getInstance().cookieSecure != null) {
+            secure = Config.getInstance().cookieSecure;
+        }
+
         Cookie cookie = new Cookie(name, URLEncoder.encode(value, StandardCharsets.UTF_8));
         cookie.setDomain(domain);
         cookie.setSecure(secure);
@@ -99,11 +111,17 @@ class CookieAndHeaders {
     }
 
     static void attachAccessTokenToCookie(Context ctx, TokenInfo token) {
+        if (Config.getInstance().accessTokenPath != null) {
+            token.cookiePath = Config.getInstance().accessTokenPath;
+        }
         setCookie(ctx, accessTokenCookieKey, token.token, token.domain, token.cookieSecure, true,
                 token.expiry, token.cookiePath, token.sameSite);
     }
 
     static void attachRefreshTokenToCookie(Context ctx, TokenInfo token) {
+        if (Config.getInstance().refreshApiPath != null) {
+            token.cookiePath = Config.getInstance().refreshApiPath;
+        }
         setCookie(ctx, refreshTokenCookieKey, token.token, token.domain, token.cookieSecure, true,
                 token.expiry, token.cookiePath, token.sameSite);
     }
@@ -130,6 +148,9 @@ class CookieAndHeaders {
     }
 
     static void setIdRefreshTokenInHeaderAndCookie(Context ctx, TokenInfo token) {
+        if (Config.getInstance().accessTokenPath != null) {
+            token.cookiePath = Config.getInstance().accessTokenPath;
+        }
         setHeader(ctx, idRefreshTokenHeaderKey, token.token + ";" + token.expiry);
         setHeader(ctx, "Access-Control-Expose-Headers", idRefreshTokenHeaderKey);
 

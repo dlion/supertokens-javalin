@@ -17,8 +17,6 @@ public class Config {
 
     private static Config instance = null;
 
-     String hosts = null;
-
      String accessTokenPath = null;
 
      String refreshApiPath = null;
@@ -39,7 +37,6 @@ public class Config {
     }
 
     public Config withHosts(String hosts) {
-        this.hosts = hosts;
         SessionFunctions.config(hosts);
         return this;
     }
