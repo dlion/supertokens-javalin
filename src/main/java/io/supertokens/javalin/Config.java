@@ -12,6 +12,7 @@
 package io.supertokens.javalin;
 
 import io.supertokens.javalin.core.SessionFunctions;
+import org.jetbrains.annotations.TestOnly;
 
 public class Config {
 
@@ -28,6 +29,11 @@ public class Config {
      String cookieSameSite = null;
 
     private Config(){}
+
+    @TestOnly
+    public static void reset() {
+        instance = null;
+    }
 
     public static Config getInstance() {
         if (instance == null) {

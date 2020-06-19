@@ -17,6 +17,7 @@
 package io.supertokens.javalin.tests;
 
 import com.google.gson.JsonObject;
+import io.supertokens.javalin.Config;
 import io.supertokens.javalin.core.DeviceInfo;
 import io.supertokens.javalin.core.HandshakeInfo;
 import io.supertokens.javalin.core.querier.Querier;
@@ -164,6 +165,7 @@ public class Utils {
         HandshakeInfo.reset();
         DeviceInfo.reset();
         Querier.reset();
+        Config.reset();
     }
 
     static String startST() throws Exception {
