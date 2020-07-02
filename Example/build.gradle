@@ -36,8 +36,6 @@ dependencies {
 
     compile "com.fasterxml.jackson.core:jackson-databind:2.10.1"
 
-    // compile 'io.supertokens:javalin:0.0.7'
-
     compile project(":supertokens-javalin")
 
     testCompile group: 'junit', name: 'junit', version: '4.12'

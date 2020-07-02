@@ -36,8 +36,8 @@ import java.util.HashMap;
 
 public class SessionFunctions {
 
-    public static void config(String config) {
-        Querier.initInstance(config);
+    public static void config(String config, String apiKey) {
+        Querier.initInstance(config, apiKey);
     }
 
     public static SessionTokens createNewSession(@NotNull String userId, @NotNull JsonObject jwtPayload,

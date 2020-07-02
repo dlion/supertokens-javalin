@@ -42,8 +42,13 @@ public class Config {
         return instance;
     }
 
+    public Config withHosts(String hosts, String apiKey) {
+        SessionFunctions.config(hosts, apiKey);
+        return this;
+    }
+
     public Config withHosts(String hosts) {
-        SessionFunctions.config(hosts);
+        SessionFunctions.config(hosts, null);
         return this;
     }
 

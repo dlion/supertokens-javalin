@@ -60,7 +60,7 @@ public class HttpRequest {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T sendGETRequest(String requestID, String url, Map<String, String> params, String version)
+    public static <T> T sendGETRequest(String requestID, String url, Map<String, String> params, String version, String apiKey)
             throws IOException, HttpResponseException {
         StringBuilder paramBuilder = new StringBuilder();
 
@@ -86,6 +86,9 @@ public class HttpRequest {
             con.setReadTimeout(10000);
             if (version != null) {
                 con.setRequestProperty("cdi-version", version);
+            }
+            if (apiKey != null) {
+                con.setRequestProperty("api-key", apiKey);
             }
 
             int responseCode = con.getResponseCode();
@@ -122,7 +125,8 @@ public class HttpRequest {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T sendJsonRequest(String requestID, String url, JsonElement requestBody, String version, String method)
+    private static <T> T sendJsonRequest(String requestID, String url, JsonElement requestBody, String version,
+                                         String apiKey, String method)
             throws IOException, HttpResponseException {
         URL obj = getURL(requestID, url);;
         InputStream inputStream = null;
@@ -135,6 +139,9 @@ public class HttpRequest {
             con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             if (version != null) {
                 con.setRequestProperty("cdi-version", version);
+            }
+            if (apiKey != null) {
+                con.setRequestProperty("api-key", apiKey);
             }
 
             if (requestBody != null) {
@@ -179,19 +186,19 @@ public class HttpRequest {
         }
     }
 
-    public static <T> T sendJsonPOSTRequest(String requestID, String url, JsonElement requestBody, String version)
+    public static <T> T sendJsonPOSTRequest(String requestID, String url, JsonElement requestBody, String version, String apiKey)
             throws IOException, HttpResponseException {
-        return sendJsonRequest(requestID, url, requestBody, version, "POST");
+        return sendJsonRequest(requestID, url, requestBody, version, apiKey, "POST");
     }
 
-    public static <T> T sendJsonPUTRequest(String requestID, String url, JsonElement requestBody, String version)
+    public static <T> T sendJsonPUTRequest(String requestID, String url, JsonElement requestBody, String version, String apiKey)
             throws IOException, HttpResponseException {
-        return sendJsonRequest(requestID, url, requestBody, version, "PUT");
+        return sendJsonRequest(requestID, url, requestBody, version, apiKey, "PUT");
     }
 
-    public static <T> T sendJsonDELETERequest(String requestID, String url, JsonElement requestBody, String version)
+    public static <T> T sendJsonDELETERequest(String requestID, String url, JsonElement requestBody, String version, String apiKey)
             throws IOException, HttpResponseException {
-        return sendJsonRequest(requestID, url, requestBody, version,
+        return sendJsonRequest(requestID, url, requestBody, version, apiKey,
                 "DELETE");
     }
 }

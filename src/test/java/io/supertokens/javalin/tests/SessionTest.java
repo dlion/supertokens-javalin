@@ -26,6 +26,7 @@ import io.supertokens.javalin.core.exception.TryRefreshTokenException;
 import io.supertokens.javalin.core.exception.UnauthorisedException;
 import io.supertokens.javalin.core.informationHolders.SessionTokens;
 import io.supertokens.javalin.core.querier.HttpRequestMocking;
+import io.supertokens.javalin.core.querier.Querier;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +66,43 @@ public class SessionTest {
             SessionFunctions.refreshSession(response.refreshToken.token);
             throw new Exception("should not have come here");
         } catch (TokenTheftDetectedException ignored) { }
+    }
+
+    @Test
+    public void tokenTheftDetectionWithAPIKey() throws Exception {
+        Utils.setKeyValueInConfig("api_keys", "=asdfkjasbdlf=ka-jbdlfakjsdbvlakjdsb==");
+        Utils.startST();
+        SuperTokens.config()
+                .withHosts("http://localhost:8080", "=asdfkjasbdlf=ka-jbdlfakjsdbvlakjdsb==");
+
+        SessionTokens response = SessionFunctions.createNewSession("", new JsonObject(), new JsonObject());
+
+        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token);
+
+        SessionFunctions.getSession(response2.accessToken.token, response2.antiCsrfToken, true);
+
+        try {
+            SessionFunctions.refreshSession(response.refreshToken.token);
+            throw new Exception("should not have come here");
+        } catch (TokenTheftDetectedException ignored) { }
+    }
+
+    @Test
+    public void queryWithoutAPIKey() throws Exception {
+        Utils.setKeyValueInConfig("api_keys", "=asdfkjasbdlf=ka-jbdlfakjsdbvlakjdsb==");
+        Utils.startST();
+        SuperTokens.config().withHosts("http://localhost:8080");
+
+        try {
+            String version = Querier.getInstance().getAPIVersion();
+            if (!version.equals("2.0") && Utils.getInstallationDir().contains("com-")) {
+                throw new Exception("should not have come here");
+            }
+        } catch (Exception e) {
+            if (!e.getMessage().contains("Invalid API key")) {
+                throw e;
+            }
+        }
     }
 
     @Test

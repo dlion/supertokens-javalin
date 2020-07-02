@@ -103,7 +103,6 @@ public class MiddlewareTest {
                         response.get("idRefreshTokenFromCookie"));
                 headers.put("anti-csrf", response.get("antiCsrf"));
                 HttpRequest.sendJsonPOSTRequest("http://localhost:8081/verify", new JsonObject(), headers);
-                assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) == null);
             }
 
             Map<String, String> response2;
@@ -140,7 +139,6 @@ public class MiddlewareTest {
                 headers.put("anti-csrf", response2.get("antiCsrf"));
                 Utils.extractInfoFromResponse(
                         HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/verify", new JsonObject(), headers));
-                assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) == null);
             }
 
             Map<String, String> response4;

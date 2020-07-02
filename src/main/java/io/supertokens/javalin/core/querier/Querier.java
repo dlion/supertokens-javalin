@@ -33,6 +33,8 @@ public class Querier {
 
     private List<String> hosts;
 
+    private String apiKey;
+
     private String apiVersion = null;
 
     private int lastTriedIndex = 0;
@@ -49,7 +51,7 @@ public class Querier {
         return hostsAliveForTesting;
     }
 
-    private Querier(String config) {
+    private Querier(String config, String apiKey) {
         this.hosts = new ArrayList<>();
         String[] splitted = config.split(";");
         for (String instance : splitted) {
@@ -61,6 +63,7 @@ public class Querier {
             }
             this.hosts.add(instance);
         }
+        this.apiKey = apiKey;
     }
 
     private Querier() {
@@ -79,13 +82,13 @@ public class Querier {
         return instance;
     }
 
-    public synchronized static void initInstance(String config) {
+    public synchronized static void initInstance(String config, String apiKey) {
         if (instance == null) {
-            instance = new Querier(config);
+            instance = new Querier(config, apiKey);
         }
     }
 
-    private String getAPIVersion() throws GeneralException {
+    public String getAPIVersion() throws GeneralException {
         if (this.apiVersion != null) {
             return apiVersion;
         }
@@ -94,7 +97,7 @@ public class Querier {
                 return apiVersion;
             }
             JsonObject response = sendRequestHelper("/apiversion",
-                    url -> HttpRequest.sendGETRequest("apiversion", url, null, null),
+                    url -> HttpRequest.sendGETRequest("apiversion", url, null, null, this.apiKey),
                     this.hosts.size());
             assert response != null;
             JsonArray cdiSupportedByServerJson = response.getAsJsonArray("versions");
@@ -133,19 +136,19 @@ public class Querier {
             body.add("frontendSDK", frontendSDK);
             body.add("driver", driver);
         }
-        return sendRequestHelper(path, url -> HttpRequest.sendJsonPOSTRequest(requestID, url, body, getAPIVersion()), this.hosts.size());
+        return sendRequestHelper(path, url -> HttpRequest.sendJsonPOSTRequest(requestID, url, body, getAPIVersion(), this.apiKey), this.hosts.size());
     }
 
     public <T> T sendDeleteRequest(String requestID, String path, JsonObject body) throws GeneralException {
-        return sendRequestHelper(path, url -> HttpRequest.sendJsonDELETERequest(requestID, url, body, getAPIVersion()), this.hosts.size());
+        return sendRequestHelper(path, url -> HttpRequest.sendJsonDELETERequest(requestID, url, body, getAPIVersion(), this.apiKey), this.hosts.size());
     }
 
     public <T> T sendGetRequest(String requestID, String path, Map<String, String> params) throws GeneralException {
-        return sendRequestHelper(path, url -> HttpRequest.sendGETRequest(requestID, url, params, getAPIVersion()), this.hosts.size());
+        return sendRequestHelper(path, url -> HttpRequest.sendGETRequest(requestID, url, params, getAPIVersion(), this.apiKey), this.hosts.size());
     }
 
     public <T> T sendPutRequest(String requestID, String path, JsonObject body) throws GeneralException {
-        return sendRequestHelper(path, url -> HttpRequest.sendJsonPUTRequest(requestID, url, body, getAPIVersion()), this.hosts.size());
+        return sendRequestHelper(path, url -> HttpRequest.sendJsonPUTRequest(requestID, url, body, getAPIVersion(), this.apiKey), this.hosts.size());
     }
 
     @SuppressWarnings("unchecked")
