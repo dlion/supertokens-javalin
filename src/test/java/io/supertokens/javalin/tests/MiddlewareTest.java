@@ -274,7 +274,7 @@ public class MiddlewareTest {
                 headers.put("anti-csrf", response.get("antiCsrf"));
                 HttpURLConnection con = HttpRequest.sendGETRequest("http://localhost:8081/user/handle", new HashMap<>(), headers);
 
-                assert (con.getResponseCode() == 440);
+                assert (con.getResponseCode() == 401 || con.getResponseCode() == 440);
                 InputStream inputStream = con.getErrorStream();
                 StringBuilder responseStr = new StringBuilder();
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
