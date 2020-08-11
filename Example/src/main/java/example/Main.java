@@ -168,12 +168,12 @@ public class Main {
                 .onTryRefreshTokenError((exception, ctx) -> {
                     ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
                     ctx.header("Access-Control-Allow-Credentials", "true");
-                    ctx.status(440).result("");
+                    ctx.status(401).result("");
                 })
                 .onUnauthorisedError((exception, ctx) -> {
                     ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
                     ctx.header("Access-Control-Allow-Credentials", "true");
-                    ctx.status(440).result("");
+                    ctx.status(401).result("");
                 })
                 .onGeneralError(((exception, ctx) -> {
                     exception.printStackTrace();
