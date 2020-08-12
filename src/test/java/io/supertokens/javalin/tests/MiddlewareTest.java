@@ -170,7 +170,6 @@ public class MiddlewareTest {
 
     @Test
     public void testMiddlware() throws Exception {
-        Utils.setKeyValueInConfig("refresh_api_path", "/refresh");
         Utils.startST("localhost", 3567);
 
         Javalin app = null;
