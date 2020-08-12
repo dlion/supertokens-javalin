@@ -54,7 +54,7 @@ public class HandshakeTest {
         assert(info.accessTokenPath.equals("/"));
         assert(info.cookieDomain.equals("supertokens.io") || info.cookieDomain.equals("localhost") );
         assert(!info.cookieSecure);
-        assert(info.refreshTokenPath.equals("/refresh"));
+        assert(info.refreshTokenPath.equals("/refresh") || info.refreshTokenPath.equals("/session/refresh"));
         assert(info.enableAntiCsrf);
         assert(!info.accessTokenBlacklistingEnabled);
         info.updateJwtSigningPublicKeyInfo("hello", 100);
