@@ -16,17 +16,20 @@
 
 package io.supertokens.javalin.core.informationHolders;
 
+import org.jetbrains.annotations.Nullable;
+
 public class TokenInfo {
     public String token;
     public long expiry;
     public long createdTime;
     public String cookiePath;
     public boolean cookieSecure;
+    @Nullable
     public String domain;
     public String sameSite;
 
     public TokenInfo(String token, long expiry, long createdTime,
-                     String cookiePath, boolean cookieSecure, String domain, String sameSite) {
+                     String cookiePath, boolean cookieSecure, @Nullable String domain, String sameSite) {
         this.token = token;
         this.expiry = expiry;
         this.createdTime = createdTime;

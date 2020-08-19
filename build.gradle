@@ -11,7 +11,7 @@ buildscript {
     }
 }
 
-def publishVersionID = '1.2.0'
+def publishVersionID = '1.3.0'
 def groupProjectID = 'io.supertokens'
 def artifactProjectID = 'javalin'
 

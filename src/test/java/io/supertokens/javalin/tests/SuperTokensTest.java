@@ -26,6 +26,7 @@ import io.supertokens.javalin.core.SessionFunctions;
 import io.supertokens.javalin.core.exception.TokenTheftDetectedException;
 import io.supertokens.javalin.core.exception.UnauthorisedException;
 import io.supertokens.javalin.core.querier.HttpRequestMocking;
+import io.supertokens.javalin.core.querier.Querier;
 import io.supertokens.javalin.tests.httprequest.HttpRequest;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -125,6 +126,15 @@ public class SuperTokensTest {
                         .extractInfoFromResponse(con);
             }
 
+            if (io.supertokens.javalin.core.Utils.maxVersion(Querier.getInstance().getAPIVersion(), "2.1").equals("2.1")) {
+                assert(response3.get("accessTokenDomain").equals("localhost"));
+                assert(response3.get("refreshTokenDomain").equals("localhost"));
+                assert(response3.get("idRefreshTokenDomain").equals("localhost"));
+            } else {
+                assert(response3.get("accessTokenDomain") == null);
+                assert(response3.get("refreshTokenDomain") == null);
+                assert(response3.get("idRefreshTokenDomain") == null);
+            }
             assert(response3.get("antiCsrf") == null);
             assert(response3.get("accessToken").equals(""));
             assert(response3.get("refreshToken").equals(""));

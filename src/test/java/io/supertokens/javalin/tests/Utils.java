@@ -66,34 +66,53 @@ public class Utils {
                 for (String i : value) {
                     if (i.split(";")[0].split("=")[0].equals("sAccessToken")) {
                         try {
-                            result.put("accessToken", i.split(";")[0].split("=")[1]);
+                            String[] tokenValue = i.split(";")[0].split("=");
+                            result.put("accessToken",tokenValue.length == 2 ? tokenValue[1] : "");
                             result.put("accessTokenPath",i.split(";")[1].split("=")[1]);
-                            result.put("accessTokenDomain",i.split(";")[2].split("=")[1]);
+                            if (i.split(";")[2].split("=")[0].trim().equals("Expires")) {
+                                result.put("accessTokenExpiry", i.split(";")[2].split("=")[1]);
+                            } else {
+                                result.put("accessTokenDomain", i.split(";")[2].split("=")[1]);
+                                result.put("accessTokenExpiry", i.split(";")[3].split("=")[1]);
+                            }
                         } catch (ArrayIndexOutOfBoundsException e) {
                             result.put("accessToken", "");
                             result.put("accessTokenPath", "");
                             result.put("accessTokenDomain", "");
+                            result.put("accessTokenExpiry", "");
                         }
-                        result.put("accessTokenExpiry", i.split(";")[3].split("=")[1]);
                     } else if (i.split(";")[0].split("=")[0].equals("sRefreshToken")) {
                         try {
-                            result.put("refreshToken", i.split(";")[0].split("=")[1]);
+                            String[] tokenValue = i.split(";")[0].split("=");
+                            result.put("refreshToken", tokenValue.length == 2 ? tokenValue[1] : "");
                             result.put("refreshTokenPath",i.split(";")[1].split("=")[1]);
-                            result.put("refreshTokenDomain",i.split(";")[2].split("=")[1]);
-
+                            if (i.split(";")[2].split("=")[0].trim().equals("Expires")) {
+                                result.put("refreshTokenExpiry", i.split(";")[2].split("=")[1]);
+                            } else {
+                                result.put("refreshTokenDomain", i.split(";")[2].split("=")[1]);
+                                result.put("refreshTokenExpiry", i.split(";")[3].split("=")[1]);
+                            }
                         } catch (ArrayIndexOutOfBoundsException e) {
                             result.put("refreshToken", "");
                             result.put("refreshTokenPath", "");
                             result.put("refreshTokenDomain", "");
+                            result.put("refreshTokenExpiry", "");
                         }
-                        result.put("refreshTokenExpiry",i.split(";")[3].split("=")[1]);
                     } else {
                         try {
-                            result.put("idRefreshTokenFromCookie", i.split(";")[0].split("=")[1]);
+                            String[] tokenValue = i.split(";")[0].split("=");
+                            result.put("idRefreshTokenFromCookie", tokenValue.length == 2 ? tokenValue[1] : "");
+                            if (i.split(";")[2].split("=")[0].trim().equals("Expires")) {
+                                result.put("idRefreshTokenExpiry", i.split(";")[2].split("=")[1]);
+                            } else {
+                                result.put("idRefreshTokenDomain", i.split(";")[2].split("=")[1]);
+                                result.put("idRefreshTokenExpiry", i.split(";")[3].split("=")[1]);
+                            }
                         } catch (ArrayIndexOutOfBoundsException e) {
                             result.put("idRefreshTokenFromCookie", "");
+                            result.put("idRefreshTokenDomain", "");
+                            result.put("idRefreshTokenExpiry", "");
                         }
-                        result.put("idRefreshTokenExpiry", i.split(";")[3].split("=")[1]);
                     }
                 }
             }
@@ -179,7 +198,7 @@ public class Utils {
         executeCommand(new String[]{"bash", "-c", "java -Djava.security.egd=file:/dev/urandom -classpath \"./core/*:./plugin-interface/*\" io.supertokens.Main ./ DEV host=" +
                                 host + " port=" + port}, false);
         long startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < 10000) {
+        while (System.currentTimeMillis() - startTime < 50000) {
             List<String> pidsAfter = getListOfPids();
             if (pidsAfter.size() <= pidsBefore.size()) {
                 Thread.sleep(100);

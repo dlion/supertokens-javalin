@@ -20,6 +20,7 @@ import io.javalin.http.Context;
 import io.supertokens.javalin.core.DeviceInfo;
 import io.supertokens.javalin.core.informationHolders.TokenInfo;
 import org.eclipse.jetty.http.HttpCookie;
+import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.http.Cookie;
 import java.net.URLDecoder;
@@ -38,7 +39,7 @@ class CookieAndHeaders {
     private static final String frontendSDKNameHeaderKey = "supertokens-sdk-name";
     private static final String frontendSDKVersionHeaderKey = "supertokens-sdk-version";
 
-    private static void setCookie(Context ctx, String name, String value, String domain, boolean secure,
+    private static void setCookie(Context ctx, String name, String value, @Nullable String domain, boolean secure,
                            boolean httpOnly, long expires, String path, String sameSite) {
         String configSameSite = Config.getInstance().cookieSameSite;
         if (configSameSite != null && (configSameSite.equals("none") || configSameSite.equals("lax") ||
@@ -62,7 +63,9 @@ class CookieAndHeaders {
         }
 
         Cookie cookie = new Cookie(name, URLEncoder.encode(value, StandardCharsets.UTF_8));
-        cookie.setDomain(domain);
+        if (domain != null) {
+            cookie.setDomain(domain);
+        }
         cookie.setSecure(secure);
         cookie.setHttpOnly(httpOnly);
         int expiry = Math.max(0, (int)Math.ceil(((expires - System.currentTimeMillis())/1000.0)));
@@ -110,7 +113,7 @@ class CookieAndHeaders {
         } catch (Exception ignored) {}
     }
 
-    static void clearSessionFromCookie(Context ctx, String domain, boolean secure, String accessTokenPath,
+    static void clearSessionFromCookie(Context ctx, @Nullable  String domain, boolean secure, String accessTokenPath,
                                        String refreshTokenPath, String idRefreshTokenPath, String sameSite) {
         setCookie(ctx, accessTokenCookieKey, "", domain, secure, true, 0, accessTokenPath, sameSite);
         setCookie(ctx, refreshTokenCookieKey, "", domain, secure, true, 0, refreshTokenPath, sameSite);

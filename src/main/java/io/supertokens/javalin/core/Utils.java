@@ -47,7 +47,7 @@ public class Utils {
                     accessTokenJson.get("createdTime").getAsLong(),
                     accessTokenJson.get("cookiePath").getAsString(),
                     accessTokenJson.get("cookieSecure").getAsBoolean(),
-                    accessTokenJson.get("domain").getAsString(),
+                    accessTokenJson.has("domain") ? accessTokenJson.get("domain").getAsString() : null,
                     accessTokenJson.get("sameSite").getAsString());
         }
         TokenInfo refreshToken = null;
@@ -58,7 +58,7 @@ public class Utils {
                     refreshTokenJson.get("createdTime").getAsLong(),
                     refreshTokenJson.get("cookiePath").getAsString(),
                     refreshTokenJson.get("cookieSecure").getAsBoolean(),
-                    refreshTokenJson.get("domain").getAsString(),
+                    refreshTokenJson.has("domain") ? refreshTokenJson.get("domain").getAsString() : null,
                     refreshTokenJson.get("sameSite").getAsString());
         }
         TokenInfo idRefreshToken = null;
@@ -69,7 +69,7 @@ public class Utils {
                     idRefreshTokenJson.get("createdTime").getAsLong(),
                     idRefreshTokenJson.get("cookiePath").getAsString(),
                     idRefreshTokenJson.get("cookieSecure").getAsBoolean(),
-                    idRefreshTokenJson.get("domain").getAsString(),
+                    idRefreshTokenJson.has("domain") ? idRefreshTokenJson.get("domain").getAsString() : null,
                     idRefreshTokenJson.get("sameSite").getAsString());
         }
         return new SessionTokens(
@@ -97,7 +97,7 @@ public class Utils {
         return maxSoFar;
     }
 
-    private static String maxVersion(String version1, String version2) {
+    public static String maxVersion(String version1, String version2) {
         String[] splittedV1 = version1.split("\\.");
         String[] splittedV2 = version2.split("\\.");
         int minLength = Math.min(splittedV1.length, splittedV2.length);

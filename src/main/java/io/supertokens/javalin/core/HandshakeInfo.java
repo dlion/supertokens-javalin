@@ -19,6 +19,7 @@ package io.supertokens.javalin.core;
 import com.google.gson.JsonObject;
 import io.supertokens.javalin.core.exception.GeneralException;
 import io.supertokens.javalin.core.querier.Querier;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 public class HandshakeInfo {
@@ -26,6 +27,7 @@ public class HandshakeInfo {
     private static HandshakeInfo instance = null;
 
     public  String jwtSigningPublicKey;
+    @Nullable
     public  String cookieDomain;
     public  boolean cookieSecure;
     public  String accessTokenPath;
@@ -49,7 +51,7 @@ public class HandshakeInfo {
                     JsonObject response = Querier.getInstance().sendPostRequest("handshake", "/handshake", new JsonObject());
                     HandshakeInfo.instance = new HandshakeInfo(
                             response.get("jwtSigningPublicKey").getAsString(),
-                            response.get("cookieDomain").getAsString(),
+                            response.has("cookieDomain") ? response.get("cookieDomain").getAsString(): null,
                             response.get("cookieSecure").getAsBoolean(),
                             response.get("accessTokenPath").getAsString(),
                             response.get("refreshTokenPath").getAsString(),
@@ -67,7 +69,7 @@ public class HandshakeInfo {
 
     private HandshakeInfo(
             String jwtSigningPublicKey,
-            String cookieDomain,
+            @Nullable  String cookieDomain,
             boolean cookieSecure,
             String accessTokenPath,
             String refreshTokenPath,
