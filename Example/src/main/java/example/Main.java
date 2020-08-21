@@ -23,13 +23,17 @@ public class Main {
     static int noOfTimesRefreshCalledDuringTest = 0;
 
     public static void main(String[] args) throws GeneralException {
-        SuperTokens.config().withHosts("http://localhost:9000");
+        SuperTokens.config().withHosts("http://localhost:9000").withCookieSameSite("lax");
+        int port = 8080;
+        try {
+            port = Integer.parseInt(args[0]);
+        } catch (Exception ignored) {}
         Javalin app = Javalin.create(config -> {
             config.addStaticFiles(System.getProperty("user.dir") + "/public", Location.EXTERNAL);
-        }).start("0.0.0.0", 8080);
+        }).start("0.0.0.0", port);
 
         app.options("*", ctx -> {
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.header("Access-Control-Allow-Headers", "content-type");
             ctx.header("Access-Control-Allow-Methods", "*");
             SuperTokens.setRelevantHeadersForOptionsAPI(ctx);
@@ -40,7 +44,7 @@ public class Main {
             JsonObject body = new JsonParser().parse(ctx.body()).getAsJsonObject();
             String userId = body.get("userId").getAsString();
             Session session = SuperTokens.newSession(ctx, userId).create();
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.header("Access-Control-Allow-Credentials", "true");
             ctx.result(userId);
         });
@@ -59,14 +63,14 @@ public class Main {
         app.get("/", ctx -> {
             noOfTimesGetSessionCalledDuringTest += 1;
             String userId = SuperTokens.getFromContext(ctx).getUserId();
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.header("Access-Control-Allow-Credentials", "true");
             ctx.result(userId);
         });
 
         app.before("/update-jwt", SuperTokens.middleware());
         app.get("/update-jwt", ctx -> {
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.header("Access-Control-Allow-Credentials", "true");
             ctx.json(SuperTokens.getFromContext(ctx).getJWTPayload());
         });
@@ -74,7 +78,7 @@ public class Main {
         app.post("/update-jwt", ctx -> {
             JsonObject body = new JsonParser().parse(ctx.body()).getAsJsonObject();
             SuperTokens.getFromContext(ctx).updateJWTPayload(new Gson().fromJson(body.toString(), new TypeToken<Map<String, Object>>(){}.getType()));
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.header("Access-Control-Allow-Credentials", "true");
             ctx.json(SuperTokens.getFromContext(ctx).getJWTPayload());
         });
@@ -107,7 +111,7 @@ public class Main {
         app.post("/logout", ctx -> {
             Session session =  SuperTokens.getFromContext(ctx);
             session.revokeSession();
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.header("Access-Control-Allow-Credentials", "true");
             ctx.result("success");
         });
@@ -123,18 +127,18 @@ public class Main {
         app.before("/refresh", SuperTokens.middleware());
         app.post("/refresh", ctx -> {
             noOfTimesRefreshCalledDuringTest++;
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.header("Access-Control-Allow-Credentials", "true");
             ctx.result("refresh success");
         });
 
         app.get("/refreshCalledTime", ctx -> {
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.result("" + noOfTimesRefreshCalledDuringTest);
         });
 
         app.get("/getSessionCalledTime", ctx -> {
-            ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+            ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
             ctx.result("" + noOfTimesGetSessionCalledDuringTest);
         });
 
@@ -166,12 +170,12 @@ public class Main {
 
         app.exception(SuperTokensException.class, SuperTokens.exceptionHandler()
                 .onTryRefreshTokenError((exception, ctx) -> {
-                    ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+                    ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
                     ctx.header("Access-Control-Allow-Credentials", "true");
                     ctx.status(401).result("");
                 })
                 .onUnauthorisedError((exception, ctx) -> {
-                    ctx.header("Access-Control-Allow-Origin", "http://127.0.0.1:8080");
+                    ctx.header("Access-Control-Allow-Origin", "http://localhost.org:8080");
                     ctx.header("Access-Control-Allow-Credentials", "true");
                     ctx.status(401).result("");
                 })

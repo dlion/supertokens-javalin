@@ -75,8 +75,11 @@ git clone git@github.com:supertokens/supertokens-website.git
 cd supertokens-website
 git checkout $2
 cd ../project/Example
-./start.sh &
+./start.sh
+java -classpath "./out/*" example.Main &
 pid=$!
+java -classpath "./out/*" example.Main 8082 &
+pid2=$!
 sleep 35
 cd ../../supertokens-website/test/server
 npm i -d
@@ -92,3 +95,4 @@ fi
 rm -rf ./test/server/node_modules/supertokens-node
 git checkout HEAD -- ./test/server/package.json
 kill -15 $pid
+kill -15 $pid2
