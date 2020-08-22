@@ -127,9 +127,12 @@ public class SuperTokensTest {
             }
 
             if (io.supertokens.javalin.core.Utils.maxVersion(Querier.getInstance().getAPIVersion(), "2.1").equals("2.1")) {
-                assert(response3.get("accessTokenDomain").equals("localhost"));
-                assert(response3.get("refreshTokenDomain").equals("localhost"));
-                assert(response3.get("idRefreshTokenDomain").equals("localhost"));
+                assert(response3.get("accessTokenDomain").equals("localhost") ||
+                        response3.get("accessTokenDomain").equals("supertokens.io"));
+                assert(response3.get("refreshTokenDomain").equals("localhost") ||
+                        response3.get("refreshTokenDomain").equals("supertokens.io"));
+                assert(response3.get("idRefreshTokenDomain").equals("localhost") ||
+                        response3.get("idRefreshTokenDomain").equals("supertokens.io"));
             } else {
                 assert(response3.get("accessTokenDomain") == null);
                 assert(response3.get("refreshTokenDomain") == null);
