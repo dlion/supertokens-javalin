@@ -125,6 +125,7 @@ public class Utils {
         executeCommand(new String[]{"cp", "temp/licenseKey", "./licenseKey"}, true);
         executeCommand(new String[]{"cp", "temp/config.yaml", "./config.yaml"}, true);
         setKeyValueInConfig("refresh_api_path", "/refresh");
+        setKeyValueInConfig("enable_anti_csrf", "true");
     }
 
     public static void cleanST() throws IOException, InterruptedException {

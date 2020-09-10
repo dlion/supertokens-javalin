@@ -23,6 +23,7 @@ import io.supertokens.javalin.ProcessState;
 import io.supertokens.javalin.SuperTokens;
 import io.supertokens.javalin.core.HandshakeInfo;
 import io.supertokens.javalin.core.SessionFunctions;
+import io.supertokens.javalin.core.exception.SuperTokensException;
 import io.supertokens.javalin.core.informationHolders.SessionTokens;
 import io.supertokens.javalin.core.querier.HttpRequestMocking;
 import io.supertokens.javalin.tests.httprequest.HttpRequest;
@@ -70,7 +71,7 @@ public class ConfigTest {
         SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, true);
         assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) == null);
 
-        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token);
+        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token, response.antiCsrfToken);
         assert (response2.accessToken.token != null);
         assert (response2.refreshToken.token != null);
         assert (response2.idRefreshToken.token != null);
@@ -121,6 +122,8 @@ public class ConfigTest {
                 ctx.result("success");
             });
 
+            app.exception(SuperTokensException.class, SuperTokens.exceptionHandler());
+
             Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
                     new JsonObject(), null));
 
@@ -133,6 +136,7 @@ public class ConfigTest {
             {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
                 HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/customRefreshPath",
                         new JsonObject(), headers);
                 response2 = Utils.extractInfoFromResponse(con);

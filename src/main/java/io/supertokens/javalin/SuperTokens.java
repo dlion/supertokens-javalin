@@ -119,8 +119,8 @@ public class SuperTokens {
             throw new UnauthorisedException("Missing auth tokens in cookies. Have you set the correct refresh API path in your frontend and SuperTokens config?");
         }
         try {
-
-            SessionTokens sessionTokens = SessionFunctions.refreshSession(inputRefreshToken);
+            String antiCsrfToken = CookieAndHeaders.getAntiCSRFTokenFromHeaders(ctx);
+            SessionTokens sessionTokens = SessionFunctions.refreshSession(inputRefreshToken, antiCsrfToken);
             CookieAndHeaders.attachAccessTokenToCookie(ctx, sessionTokens.accessToken);
             CookieAndHeaders.attachRefreshTokenToCookie(ctx, sessionTokens.refreshToken);
             CookieAndHeaders.setIdRefreshTokenInHeaderAndCookie(ctx, sessionTokens.idRefreshToken);

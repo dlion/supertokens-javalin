@@ -94,6 +94,7 @@ public class SuperTokensTest {
             {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
                 response2 = Utils
                         .extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/refresh",
                                 new JsonObject(), headers));
@@ -111,6 +112,7 @@ public class SuperTokensTest {
             {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
                 HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/refresh",
                         new JsonObject(), headers);
                 InputStream inputStream = con.getInputStream();
@@ -205,6 +207,7 @@ public class SuperTokensTest {
             {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
                 HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/refresh",
                         new JsonObject(), headers);
                 response2 = Utils.extractInfoFromResponse(con);

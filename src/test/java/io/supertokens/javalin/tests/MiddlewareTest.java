@@ -60,7 +60,7 @@ public class MiddlewareTest {
     public void testMiddlewareWithTrySupertokensURL() throws Exception{
         Utils.startST("localhost",3567);
         SuperTokens.config()
-                .withHosts("https://try.supertokens.io");
+                .withHosts("https://try.supertokens.io").withRefreshApiPath("/refresh");
 
         Javalin app = null;
         try{
@@ -109,6 +109,7 @@ public class MiddlewareTest {
             {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+                headers.put("anti-csrf", response.get("antiCsrf"));
                 HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/refresh",
                         new JsonObject(), headers);
                 response2 = Utils.extractInfoFromResponse(con);
@@ -288,6 +289,7 @@ public class MiddlewareTest {
 
             Map<String, String> h = new HashMap<>();
             h.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+            h.put("anti-csrf", response.get("antiCsrf"));
             Map<String, String> response2 = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/refresh",
                     new JsonObject(), h));
 
@@ -324,6 +326,7 @@ public class MiddlewareTest {
             {
                 Map<String, String> header = new HashMap<>();
                 header.put("Cookie", "sRefreshToken=" + response.get("refreshToken"));
+                header.put("anti-csrf", response.get("antiCsrf"));
                 HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/refresh", new JsonObject(), header);
 
                 assert(con.getResponseCode() == 403);

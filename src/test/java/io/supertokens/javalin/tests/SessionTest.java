@@ -58,12 +58,12 @@ public class SessionTest {
 
         SessionTokens response = SessionFunctions.createNewSession("", new JsonObject(), new JsonObject());
 
-        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token);
+        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token, response.antiCsrfToken);
 
         SessionFunctions.getSession(response2.accessToken.token, response2.antiCsrfToken, true);
 
         try {
-            SessionFunctions.refreshSession(response.refreshToken.token);
+            SessionFunctions.refreshSession(response.refreshToken.token, response.antiCsrfToken);
             throw new Exception("should not have come here");
         } catch (TokenTheftDetectedException ignored) { }
     }
@@ -77,12 +77,12 @@ public class SessionTest {
 
         SessionTokens response = SessionFunctions.createNewSession("", new JsonObject(), new JsonObject());
 
-        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token);
+        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token, response.antiCsrfToken);
 
         SessionFunctions.getSession(response2.accessToken.token, response2.antiCsrfToken, true);
 
         try {
-            SessionFunctions.refreshSession(response.refreshToken.token);
+            SessionFunctions.refreshSession(response.refreshToken.token, response.antiCsrfToken);
             throw new Exception("should not have come here");
         } catch (TokenTheftDetectedException ignored) { }
     }
@@ -121,7 +121,7 @@ public class SessionTest {
         SessionFunctions.getSession(response.accessToken.token, response.antiCsrfToken, true);
         assert (ProcessState.getInstance().getLastEventByName(ProcessState.PROCESS_STATE.CALLING_SERVICE_IN_VERIFY) == null);
 
-        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token);
+        SessionTokens response2 = SessionFunctions.refreshSession(response.refreshToken.token, response.antiCsrfToken);
         assert (response2.accessToken.token != null);
         assert (response2.refreshToken.token != null);
         assert (response2.idRefreshToken.token != null);

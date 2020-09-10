@@ -100,10 +100,13 @@ public class SessionFunctions {
         }
     }
 
-    public static SessionTokens refreshSession(String refreshToken) throws UnauthorisedException,
+    public static SessionTokens refreshSession(String refreshToken, @Nullable  String antiCsrfToken) throws UnauthorisedException,
             TokenTheftDetectedException, GeneralException {
         JsonObject body = new JsonObject();
         body.addProperty("refreshToken", refreshToken);
+        if (antiCsrfToken != null) {
+            body.addProperty("antiCsrfToken", antiCsrfToken);
+        }
         JsonObject response = Querier.getInstance().sendPostRequest("refresh", "/session/refresh", body);
         if (response.get("status").getAsString().equals("OK")) {
             return Utils.parseJsonResponse(response);

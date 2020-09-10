@@ -336,7 +336,7 @@ public class DeviceDriverInfoTest extends Mockito {
             // refresh session check.
             {
                 try {
-                    SessionFunctions.refreshSession("");
+                    SessionFunctions.refreshSession("", null);
                 } catch (Exception ignored) {}
                 JsonObject outputJson = new JsonParser().parse(refreshOutput.toString()).getAsJsonObject();
 
