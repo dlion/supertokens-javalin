@@ -59,8 +59,6 @@ public class MiddlewareTest {
     @Test
     public void testMiddlewareWithTrySupertokensURL() throws Exception{
         Utils.startST("localhost",3567);
-        SuperTokens.config()
-                .withHosts("https://try.supertokens.io").withRefreshApiPath("/refresh");
 
         Javalin app = null;
         try{

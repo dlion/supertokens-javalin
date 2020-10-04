@@ -95,7 +95,9 @@ public class SessionTest {
 
         try {
             String version = Querier.getInstance().getAPIVersion();
-            if (!version.equals("2.0") && Utils.getInstallationDir().contains("com-")) {
+            if ((!version.equals("2.0") && Utils.getInstallationDir().contains("com-")) ||
+                    (io.supertokens.javalin.core.Utils.maxVersion(version, "2.3").equals(version)
+                            && Utils.getInstallationDir().contains("supertokens-"))) {
                 throw new Exception("should not have come here");
             }
         } catch (Exception e) {

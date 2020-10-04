@@ -31,7 +31,7 @@ public class Utils {
 
     public static String getInstallationDir() { // without a /
         String result = System.getProperty("installdir");
-        return result == null || result.equals("") ? "../com-root" : result;
+        return result == null || result.equals("") ? "../supertokens-root" : result;
     }
 
     public static void executeCommand(String[] command, boolean waitFor) throws IOException, InterruptedException {
