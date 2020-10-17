@@ -64,15 +64,6 @@ public class SuperTokens {
 
         String idRefreshToken = CookieAndHeaders.getIdRefreshTokenFromCookie(ctx);
         if (idRefreshToken == null) {
-            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
-            CookieAndHeaders.clearSessionFromCookie(
-                    ctx,
-                    handShakeInfo.cookieDomain,
-                    handShakeInfo.cookieSecure,
-                    handShakeInfo.accessTokenPath,
-                    handShakeInfo.refreshTokenPath,
-                    handShakeInfo.idRefreshTokenPath,
-                    handShakeInfo.cookieSameSite);
             throw new UnauthorisedException("idRefreshToken missing");
         }
 
@@ -107,15 +98,6 @@ public class SuperTokens {
         CookieAndHeaders.saveFrontendInfoFromRequest(ctx);
         String inputRefreshToken = CookieAndHeaders.getRefreshTokenFromCookie(ctx);
         if (inputRefreshToken == null) {
-            HandshakeInfo handShakeInfo = HandshakeInfo.getInstance();
-            CookieAndHeaders.clearSessionFromCookie(
-                    ctx,
-                    handShakeInfo.cookieDomain,
-                    handShakeInfo.cookieSecure,
-                    handShakeInfo.accessTokenPath,
-                    handShakeInfo.refreshTokenPath,
-                    handShakeInfo.idRefreshTokenPath,
-                    handShakeInfo.cookieSameSite);
             throw new UnauthorisedException("Missing auth tokens in cookies. Have you set the correct refresh API path in your frontend and SuperTokens config?");
         }
         try {
