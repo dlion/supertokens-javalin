@@ -31,7 +31,7 @@ public class Querier {
 
     private static Querier instance;
 
-    private List<String> hosts;
+    private final List<String> hosts;
 
     private String apiKey;
 
@@ -39,7 +39,7 @@ public class Querier {
 
     private int lastTriedIndex = 0;
 
-    private Set<String> hostsAliveForTesting = new HashSet<>();
+    private final Set<String> hostsAliveForTesting = new HashSet<>();
 
     @TestOnly
     public static void reset() {

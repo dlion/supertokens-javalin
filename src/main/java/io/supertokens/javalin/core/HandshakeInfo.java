@@ -28,16 +28,16 @@ public class HandshakeInfo {
 
     public  String jwtSigningPublicKey;
     @Nullable
-    public  String cookieDomain;
-    public  boolean cookieSecure;
-    public  String accessTokenPath;
-    public  String refreshTokenPath;
-    public  boolean enableAntiCsrf;
-    public  boolean accessTokenBlacklistingEnabled;
+    public final String cookieDomain;
+    public final boolean cookieSecure;
+    public final String accessTokenPath;
+    public final String refreshTokenPath;
+    public final boolean enableAntiCsrf;
+    public final boolean accessTokenBlacklistingEnabled;
     public  long jwtSigningPublicKeyExpiryTime;
-    public  String cookieSameSite;
-    public  String idRefreshTokenPath;
-    public  int sessionExpiredStatusCode;
+    public final String cookieSameSite;
+    public final String idRefreshTokenPath;
+    public final int sessionExpiredStatusCode;
 
     @TestOnly
     public static void reset() {

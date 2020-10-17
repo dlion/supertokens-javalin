@@ -18,9 +18,9 @@ package io.supertokens.javalin;
 
 public class Constants {
 
-    public static String VERSION = "1.4.0";
+    public static final String VERSION = "1.4.0";
 
-    public static String[] CDI_SUPPORTED = new String[]{"2.0", "2.1", "2.2", "2.3"};
+    public static final String[] CDI_SUPPORTED = new String[]{"2.0", "2.1", "2.2", "2.3"};
 
     public static boolean IS_TESTING = false;
 }

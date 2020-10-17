@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class HttpRequestMocking {
 
-    private Map<String, URLGetter> urlMap = new HashMap<>();
+    private final Map<String, URLGetter> urlMap = new HashMap<>();
 
     private static HttpRequestMocking instance;
 

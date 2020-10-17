@@ -24,7 +24,7 @@ import java.util.List;
 public class DeviceInfo {
 
     private static DeviceInfo instance = null;
-    private List<Device> frontendSDK = new ArrayList<>();
+    private final List<Device> frontendSDK = new ArrayList<>();
 
     @TestOnly
     public static void reset() {
@@ -69,8 +69,8 @@ public class DeviceInfo {
     }
 
     public static class Device {
-        public String name;
-        public String version;
+        public final String name;
+        public final String version;
 
         public Device(String name, String version) {
             this.name = name;
