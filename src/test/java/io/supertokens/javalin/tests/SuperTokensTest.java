@@ -809,4 +809,68 @@ public class SuperTokensTest {
         }
     }
 
+    @Test
+    public void testThatGetSessionDoNotClearCookiesIfTheyDoNotExistInTheFirstPlace() throws Exception {
+        Utils.startST();
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
+        Javalin app = null;
+        try {
+            app = Javalin.create().start("localhost", 8081);
+
+
+            app.post("/session/verify", ctx -> {
+                try{
+                    SuperTokens.getSession(ctx, true);
+                    ctx.res.setStatus(500);
+                } catch (Exception e) {
+                    if (e instanceof UnauthorisedException) {
+                        ctx.res.setStatus(200);
+                    }
+                }
+            });
+
+            Map<String, String> headers = new HashMap<>();
+            HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/verify", new JsonObject(), headers);
+            Map<String, String> infoFromResponse = Utils.extractInfoFromResponse(con);
+
+            assert (con.getResponseCode() == 200);
+            assert (infoFromResponse.isEmpty());
+        } finally {
+            if (app != null) {
+                app.stop();
+            }
+        }
+    }
+
+    @Test
+    public void testThatRefreshSessionDoNotClearCookiesIfTheyDoNotExistInTheFirstPlace() throws Exception {
+        Utils.startST();
+        SuperTokens.config()
+                .withHosts("http://localhost:8080");
+        Javalin app = null;
+        try {
+            app = Javalin.create().start("localhost", 8081);
+            app.post("/session/refresh", ctx -> {
+                try{
+                    SuperTokens.refreshSession(ctx);
+                    ctx.res.setStatus(500);
+                } catch (Exception e) {
+                    if (e instanceof UnauthorisedException) {
+                        ctx.res.setStatus(200);
+                    }
+                }
+            });
+
+            Map<String, String> headers = new HashMap<>();
+            HttpURLConnection con = HttpRequest.sendJsonPOSTRequest("http://localhost:8081/session/refresh", new JsonObject(), headers);
+            Map<String, String> infoFromResponse = Utils.extractInfoFromResponse(con);
+            assert (con.getResponseCode() == 200);
+            assert (infoFromResponse.isEmpty());
+        } finally {
+            if (app != null) {
+                app.stop();
+            }
+        }
+    }
 }
