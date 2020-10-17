@@ -22,6 +22,8 @@ import io.supertokens.javalin.core.exception.*;
 import io.supertokens.javalin.core.HandshakeInfo;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class SuperTokensExceptionHandler implements ExceptionHandler<SuperTokensException> {
 
     private ExceptionHandler<UnauthorisedException> unauthorisedHandler;
@@ -108,12 +110,8 @@ public class SuperTokensExceptionHandler implements ExceptionHandler<SuperTokens
 
     private void defaultGeneralExceptionHandler(@NotNull GeneralException exception, @NotNull Context ctx) {
         Throwable cause = exception.getCause();
-        String message = "";
-        if (cause == null) {
-            message = exception.getMessage();
-        } else {
-            message = cause.getMessage();
-        }
+        String message;
+        message = Objects.requireNonNullElse(cause, exception).getMessage();
         ctx.status(500).result(message);
     }
 }
