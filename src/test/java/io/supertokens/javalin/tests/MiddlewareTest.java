@@ -74,9 +74,7 @@ public class MiddlewareTest {
             });
 
             app.before("/refresh", SuperTokens.middleware());
-            app.post("/refresh", ctx -> {
-                ctx.result("{\"message\": true}");
-            });
+            app.post("/refresh", ctx -> ctx.result("{\"message\": true}"));
 
             app.before("/logout", SuperTokens.middleware());
             app.post("/logout", ctx -> {
@@ -191,9 +189,7 @@ public class MiddlewareTest {
             });
 
             app.before("/refresh", SuperTokens.middleware());
-            app.post("/refresh", ctx -> {
-                ctx.result("{\"message\": true}");
-            });
+            app.post("/refresh", ctx -> ctx.result("{\"message\": true}"));
 
             app.before("/logout", SuperTokens.middleware());
             app.post("/logout", ctx -> {
@@ -210,9 +206,7 @@ public class MiddlewareTest {
                 ctx.status(400).result("{\"message\": general error}");
             }));
 
-            app.exception(Exception.class, (e, ctx) -> {
-                ctx.result("");
-            });
+            app.exception(Exception.class, (e, ctx) -> ctx.result(""));
 
 
             Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",

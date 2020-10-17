@@ -130,9 +130,7 @@ public class DeviceDriverInfoTest extends Mockito {
                 ctx.result("");
             });
 
-            app.exception(Exception.class, (e, ctx) -> {
-                ctx.result("");
-            });
+            app.exception(Exception.class, (e, ctx) -> ctx.result(""));
 
             Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
                     new JsonObject(), null));
