@@ -17,14 +17,10 @@
 package io.supertokens.javalin.tests.httprequest;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import io.supertokens.javalin.Constants;
-import io.supertokens.javalin.core.querier.HttpRequestMocking;
 import io.supertokens.javalin.core.querier.HttpResponseException;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

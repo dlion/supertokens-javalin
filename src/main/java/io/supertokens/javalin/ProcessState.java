@@ -67,8 +67,8 @@ public class ProcessState {
     }
 
     public static class EventAndException {
-        public Exception exception;
-        PROCESS_STATE state;
+        public final Exception exception;
+        final PROCESS_STATE state;
 
         public EventAndException(PROCESS_STATE state, Exception e) {
             this.state = state;

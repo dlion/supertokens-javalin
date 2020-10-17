@@ -30,10 +30,10 @@ import java.util.Map;
 public class Session {
 
     private String accessToken;
-    private String sessionHandle;
-    private String userId;
+    private final String sessionHandle;
+    private final String userId;
     private Map<String, Object> userDataInJWT;
-    private Context ctx;
+    private final Context ctx;
 
     Session(String accessToken, String sessionHandle, String userId, Map<String, Object>  userDataInJWT, Context ctx) {
         this.accessToken = accessToken;

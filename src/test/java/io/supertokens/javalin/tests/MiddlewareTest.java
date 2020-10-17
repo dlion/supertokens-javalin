@@ -25,7 +25,6 @@ import io.supertokens.javalin.SuperTokens;
 import io.supertokens.javalin.core.exception.SuperTokensException;
 import io.supertokens.javalin.core.querier.HttpRequestMocking;
 import io.supertokens.javalin.tests.httprequest.HttpRequest;
-import net.bytebuddy.implementation.bind.annotation.Super;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,9 +74,7 @@ public class MiddlewareTest {
             });
 
             app.before("/refresh", SuperTokens.middleware());
-            app.post("/refresh", ctx -> {
-                ctx.result("{\"message\": true}");
-            });
+            app.post("/refresh", ctx -> ctx.result("{\"message\": true}"));
 
             app.before("/logout", SuperTokens.middleware());
             app.post("/logout", ctx -> {
@@ -193,9 +189,7 @@ public class MiddlewareTest {
             });
 
             app.before("/refresh", SuperTokens.middleware());
-            app.post("/refresh", ctx -> {
-                ctx.result("{\"message\": true}");
-            });
+            app.post("/refresh", ctx -> ctx.result("{\"message\": true}"));
 
             app.before("/logout", SuperTokens.middleware());
             app.post("/logout", ctx -> {
@@ -212,9 +206,7 @@ public class MiddlewareTest {
                 ctx.status(400).result("{\"message\": general error}");
             }));
 
-            app.exception(Exception.class, (e, ctx) -> {
-                ctx.result("");
-            });
+            app.exception(Exception.class, (e, ctx) -> ctx.result(""));
 
 
             Map<String, String> response = Utils.extractInfoFromResponse(HttpRequest.sendJsonPOSTRequest("http://localhost:8081/create",
