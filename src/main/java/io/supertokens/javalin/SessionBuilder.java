@@ -19,7 +19,6 @@ package io.supertokens.javalin;
 import io.javalin.http.Context;
 import io.supertokens.javalin.core.exception.GeneralException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;

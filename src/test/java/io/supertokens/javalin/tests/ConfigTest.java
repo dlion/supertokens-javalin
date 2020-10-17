@@ -21,7 +21,6 @@ import io.javalin.Javalin;
 import io.supertokens.javalin.Constants;
 import io.supertokens.javalin.ProcessState;
 import io.supertokens.javalin.SuperTokens;
-import io.supertokens.javalin.core.HandshakeInfo;
 import io.supertokens.javalin.core.SessionFunctions;
 import io.supertokens.javalin.core.exception.SuperTokensException;
 import io.supertokens.javalin.core.informationHolders.SessionTokens;

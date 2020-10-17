@@ -25,7 +25,6 @@ import io.supertokens.javalin.SuperTokens;
 import io.supertokens.javalin.core.exception.SuperTokensException;
 import io.supertokens.javalin.core.querier.HttpRequestMocking;
 import io.supertokens.javalin.tests.httprequest.HttpRequest;
-import net.bytebuddy.implementation.bind.annotation.Super;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 

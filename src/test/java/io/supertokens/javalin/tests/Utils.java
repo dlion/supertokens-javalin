@@ -16,7 +16,6 @@
 
 package io.supertokens.javalin.tests;
 
-import com.google.gson.JsonObject;
 import io.supertokens.javalin.Config;
 import io.supertokens.javalin.core.DeviceInfo;
 import io.supertokens.javalin.core.HandshakeInfo;

@@ -16,7 +16,6 @@
 
 package io.supertokens.javalin.core.accessToken;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.supertokens.javalin.core.Utils;
